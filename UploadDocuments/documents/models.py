@@ -1,6 +1,8 @@
 from django.db import models
 from enum import Enum
 
+NAME_MAX_LENGTH = 100
+
 class UploadStatusEnum(models.IntegerChoices):
     PENDING = (1, "pending")
     COMPLETED = (2, "completed")
@@ -13,26 +15,24 @@ class FileType(Enum):
     OTHER = "Other"
 
 class RelationshipManager(models.Model):
-    name = models.CharField(max_length=30)
-
+    name = models.CharField(max_length=NAME_MAX_LENGTH)
 
 class Customer(models.Model):
-    name = models.CharField(max_length=30)
-    email = models.CharField(max_length=10)
+    name = models.CharField(max_length=NAME_MAX_LENGTH)
+    email = models.EmailField()
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE)
-
-
+    
 class File(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=NAME_MAX_LENGTH)
     url = models.FileField(upload_to='uploads/')
-    # upload_date = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Document(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    name = models.CharField(max_length=50)
-    blurb = models.CharField(max_length=1000, default="")
+    name = models.CharField(max_length=NAME_MAX_LENGTH)
+    email_blurb = models.CharField(max_length=1000, default="")
     type = models.CharField(max_length=30)
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING)    
@@ -44,7 +44,7 @@ class Document(models.Model):
 class Notification(models.Model):
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE)
-    type = models.CharField(max_length=50)
+    type = models.CharField(max_length=NAME_MAX_LENGTH)
     text = models.CharField(max_length=1000)
     read = models.BooleanField(default=False)
-    created_date = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -4,8 +4,8 @@ from django.shortcuts import render
 from .models import Customer, File, Notification, FileType, Document, UploadStatusEnum
 from .forms import FileUploadForm, DocumentRequestForm
 from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
-from .data_access.document_access import get_document_by_url, update_document_status_from_url, get_documents_filtered,get_rm_by_document
-from .data_access.notification_access import  create_notification, get_notifications_by_rm
+from .data_access.document_access import get_document_by_url, update_document_status_from_url, get_documents_filtered, get_rm_by_document
+from .data_access.notification_access import create_notification, get_notifications_by_rm
 from .utilities import generate_presigned_url, is_valid_url, is_document_invalid_status
 import logging
 from datetime import datetime, timedelta
@@ -21,7 +21,8 @@ def check_valid_upload_request(id):
         return False  # Return False if the document_request is not found
     #  check if expired
     current_date = datetime.now()
-    date_to_compare_datetime = datetime.combine(document.created_at, datetime.min.time())
+    date_to_compare_datetime = datetime.combine(
+        document.created_at, datetime.min.time())
     date_difference = current_date - date_to_compare_datetime
     if date_difference >= timedelta(days=7):
         return False
@@ -50,6 +51,7 @@ def upload_file(request, request_id):
         form = FileUploadForm()
     return render(request, "upload_file.html", {"form": form})
 
+
 def create_document_request(request):
     if request.method == "POST":
         form = DocumentRequestForm(request.POST)
@@ -58,8 +60,9 @@ def create_document_request(request):
             email = form.cleaned_data['email']
             customer = get_customer_by_email(email)
             name = form.cleaned_data['name']
-            type = form.cleaned_data['type']        
-            new_document_request = Document(customer=customer, name=name, type=type, presigned_url=generate_presigned_url())
+            type = form.cleaned_data['type']
+            new_document_request = Document(
+                customer=customer, name=name, type=type, presigned_url=generate_presigned_url())
             new_document_request.save()
             return HttpResponse("Success")
     else:
@@ -96,7 +99,8 @@ class DocumentRequestView(ListView):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         context["document_list"] = queryset['document_list']
-        context["document_types"] =  [{"name": item.name, "value": item.value} for item in FileType]
+        context["document_types"] = [
+            {"name": item.name, "value": item.value} for item in FileType]
         context["customers"] = queryset['customers']
 
         return context

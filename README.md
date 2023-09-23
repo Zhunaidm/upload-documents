@@ -1,6 +1,5 @@
 ## Installations
 pip install django
-pip install django-bootstrap-v5
 
 ## DB Migration
 python manage.py makemigrations 

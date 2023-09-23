@@ -1,75 +1,75 @@
 [
-    {
-      "model": "documents.RelationshipManager",
-      "pk": 1,
-      "fields": {
-        "name": "RM1"
-      }
-    },
-    {
-      "model": "documents.RelationshipManager",
-      "pk": 2,
-      "fields": {
-        "name": "RM2"
-      }
-    },    
-    {
-      "model": "documents.Customer",
-      "pk": 1,
-      "fields": {
-        "name": "Jane Doe",
-        "email": "JaneDoe@test.com",
-        "relationship_manager": 1
-      }
-    },
-    {
-      "model": "documents.Customer",
-      "pk": 2,
-      "fields": {
-        "name": "Test Customer",
-        "email": "TestCustomer@test.com",
-        "relationship_manager": 1
-      }
-    },    
-    {
-      "model": "documents.Customer",
-      "pk": 3,
-      "fields": {
-        "name": "John Doe",
-        "email": "JohnDoe@test.com",
-        "relationship_manager": 2
-      }
-    },
-    {
-      "model": "documents.File",
-      "pk": 1,
-      "fields": {
-        "name": "Identity Document Jane",        
-        "url": "example.txt",
-        "created_at": "2023-08-31T00:00:00Z"        
-      }
-    },
-    {
-      "model": "documents.Document",
-      "pk": 1,
-      "fields": {
-        "customer": 1,
-        "name": "Identity Document Jane",        
-        "type": "Identification",
-        "file": 1,
-        "presigned_url": "b2837ab9-eff4-4239-9c85-a329de4bb4b7",
-        "created_at": "2023-08-31T00:00:00Z"
-      }
-    },
-    {
-      "model": "documents.Notification",
-      "pk": 1,
-      "fields": {
-        "relationship_manager": 1,
-        "type": "FileUpload",        
-        "text": "A new file has been uploaded by Customer C",
-        "read": false,
-        "created_at": "2023-08-31T00:00:00Z"
-      }
-    }    
-  ]
+  {
+    "model": "documents.RelationshipManager",
+    "pk": 1,
+    "fields": {
+      "name": "RM1"
+    }
+  },
+  {
+    "model": "documents.RelationshipManager",
+    "pk": 2,
+    "fields": {
+      "name": "RM2"
+    }
+  },
+  {
+    "model": "documents.Customer",
+    "pk": 1,
+    "fields": {
+      "name": "Jane Doe",
+      "email": "JaneDoe@test.com",
+      "relationship_manager": 1
+    }
+  },
+  {
+    "model": "documents.Customer",
+    "pk": 2,
+    "fields": {
+      "name": "Test Customer",
+      "email": "TestCustomer@test.com",
+      "relationship_manager": 1
+    }
+  },
+  {
+    "model": "documents.Customer",
+    "pk": 3,
+    "fields": {
+      "name": "John Doe",
+      "email": "JohnDoe@test.com",
+      "relationship_manager": 2
+    }
+  },
+  {
+    "model": "documents.File",
+    "pk": 1,
+    "fields": {
+      "name": "Identity Document Jane",
+      "url": "example.txt",
+      "created_at": "2023-08-31T00:00:00Z"
+    }
+  },
+  {
+    "model": "documents.Document",
+    "pk": 1,
+    "fields": {
+      "customer": 1,
+      "name": "Identity Document Jane",
+      "type": "Identification",
+      "file": 1,
+      "presigned_url": "b2837ab9-eff4-4239-9c85-a329de4bb4b7",
+      "created_at": "2023-08-31T00:00:00Z"
+    }
+  },
+  {
+    "model": "documents.Notification",
+    "pk": 1,
+    "fields": {
+      "relationship_manager": 1,
+      "type": "FileUpload",
+      "text": "A new file has been uploaded by Customer C",
+      "read": false,
+      "created_at": "2023-08-31T00:00:00Z"
+    }
+  }
+]

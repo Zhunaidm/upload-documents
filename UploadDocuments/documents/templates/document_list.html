@@ -1,63 +1,70 @@
 {% extends 'base.html' %}
 
 {% block documents_tab_content %}
-    <div class="container">
-        <h1 class="text-center">Document Requests</h1>
+<div class="container">
+    <h1 class="text-center">Document Requests</h1>
 
-        <form method="POST" action="{% url 'create_document_request' %}">
-            {% csrf_token %}
-            <h2>Create Document Request</h2>
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <select name="email" id="email" class="form-control">
-                    {% for customer in customers %}
-                        <option value="{{ customer.email }}">{{ customer.email }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" name="name" id="name" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="type">Type:</label>
-                <select name="type" id="type" class="form-control">
-                    {% for document_type in document_types %}
-                        <option value="{{ document_type.name }}">{{ document_type.value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Create</button>
-        </form>
-        
-        <form method="GET" action="{% url 'document_list' %}">
-            <h2>Search Document Requests</h2>            
-            <input type="text" name="email" placeholder="Search email" value="{{email}}">
-            <select name="status">
-                <option value="" selected>Select Filter</option>
-                <option value="All">All</option>
-                <option value="1">Pending</option>
-                <option value="2">Completed</option>
+    <form method="POST" action="{% url 'create_document_request' %}">
+        {% csrf_token %}
+        <h2>Create Document Request</h2>
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <select name="email" id="email" class="form-control">
+                {% for customer in customers %}
+                <option value="{{ customer.email }}">{{ customer.email }}</option>
+                {% endfor %}
             </select>
-            <button type="submit">Search</button>
-        </form>
+        </div>
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" name="name" id="name" class="form-control">
+        </div>
+        <div class="form-group">
+            <label for="type">Type:</label>
+            <select name="type" id="type" class="form-control">
+                {% for document_type in document_types %}
+                <option value="{{ document_type.name }}">{{ document_type.value }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+    </form>
 
-        <ul class="list-group">
+    <form method="GET" action="{% url 'document_list' %}">
+        <h2>Search Document Requests</h2>
+        <input type="text" name="email" placeholder="Search email" value="{{email}}">
+        <select name="status">
+            <option value="" selected>Select Filter</option>
+            <option value="All">All</option>
+            <option value="1">Pending</option>
+            <option value="2">Completed</option>
+        </select>
+        <button type="submit">Search</button>
+    </form>
+
+    <ul class="list-group">
         {% for document in document_list %}
-            <li class="list-group-item">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p><strong>Email:</strong> {{ document.customer.email }}</p>
-                        <p><strong>Name:</strong> {{ document.name }}</p>
-                        <p><strong>Type:</strong> {{ document.type }}</p>
-                        <p><strong>Status:</strong> {{ document.get_status_display }}</p>
-                        <p><strong>Upload URL:</strong> <a href="http://127.0.0.1:8000/documents/upload/{{ document.presigned_url }}">{{ document.presigned_url }}</a></p>                        <p><strong>Created at</strong> {{ document.created_at }}</p>
-                    </div>
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p><strong>Email:</strong> {{ document.customer.email }}</p>
+                    <p><strong>Name:</strong> {{ document.name }}</p>
+                    <p><strong>Type:</strong> {{ document.type }}</p>
+                    <p><strong>Status:</strong> {{ document.get_status_display }}</p>
+                    <p><strong>Upload URL:</strong> <a
+                            href="http://127.0.0.1:8000/documents/upload/{{ document.presigned_url }}">{{
+                            document.presigned_url }}</a></p>
+                    <p><strong>Created at</strong> {{ document.created_at }}</p>
+                    {% if document.status == 2 %}
+                    <a href="{% url 'download_document' document.presigned_url %}"
+                        class="btn btn-sm btn-primary">Download</a>
+                    {% endif %}
                 </div>
-            </li>
+            </div>
+        </li>
         {% empty %}
-            <li class="list-group-item text-center">No Document Requests.</li>
+        <li class="list-group-item text-center">No Document Requests.</li>
         {% endfor %}
-        </ul>
-    </div>
+    </ul>
+</div>
 {% endblock %}

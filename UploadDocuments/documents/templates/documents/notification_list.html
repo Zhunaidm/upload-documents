@@ -1,44 +1,44 @@
 {% extends 'base.html' %}
 
 {% block notifications_tab_content %}
-    <div class="container">
-        <h1 class="text-center">Notifications</h1>
-        <form method="GET" action="{% url 'notification_list' %}">
-            <select name="read">
-                <option value="" selected>Select Filter</option>
-                <option value="All">All</option>
-                <option value="False">Unread</option>
-                <option value="True">Read</option>
-            </select>
-            <button type="submit">Search</button>
-        </form>
+<div class="container">
+    <h1 class="text-center">Notifications</h1>
+    <form method="GET" action="{% url 'notification_list' %}">
+        <select name="read">
+            <option value="" selected>Select Filter</option>
+            <option value="All">All</option>
+            <option value="False">Unread</option>
+            <option value="True">Read</option>
+        </select>
+        <button type="submit">Search</button>
+    </form>
 
-        <form method="POST" action="{% url 'mark_all_notifications_read' %}">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary">Mark All as Read</button>
-        </form>
-        
-        <ul class="list-group">
+    <form method="POST" action="{% url 'mark_all_notifications_read' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Mark All as Read</button>
+    </form>
+
+    <ul class="list-group">
         {% for notification in notification_list %}
-            <li class="list-group-item">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <p><strong>Type:</strong> {{ notification.type }}</p>
-                        <p><strong>Text:</strong> {{ notification.text }}</p>
-                        <p><strong>Read:</strong> {{ notification.read }}</p>
-                        <p><strong>Created at</strong> {{ notification.created_at }}</p>
-                    </div>
-                    {% if not notification.read %}
-                    <form method="POST" action="{% url 'mark_notification_read' notification.id %}">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-primary">Mark as Read</button>
-                    </form>
-                    {% endif %}
+        <li class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p><strong>Type:</strong> {{ notification.type }}</p>
+                    <p><strong>Text:</strong> {{ notification.text }}</p>
+                    <p><strong>Read:</strong> {{ notification.read }}</p>
+                    <p><strong>Created at</strong> {{ notification.created_at }}</p>
                 </div>
-            </li>
+                {% if not notification.read %}
+                <form method="POST" action="{% url 'mark_notification_read' notification.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-primary">Mark as Read</button>
+                </form>
+                {% endif %}
+            </div>
+        </li>
         {% empty %}
-            <li class="list-group-item text-center">No Notifications.</li>
+        <li class="list-group-item text-center">No Notifications.</li>
         {% endfor %}
-        </ul>
-    </div>
+    </ul>
+</div>
 {% endblock %}

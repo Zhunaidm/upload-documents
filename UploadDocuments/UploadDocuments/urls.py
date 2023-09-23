@@ -19,7 +19,7 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("", RedirectView.as_view(url='/documents/')),
+    path("admin/", admin.site.urls),
+    path("", RedirectView.as_view(url="/documents/")),
     path("documents/", include("documents.urls")),
 ]

@@ -3,30 +3,37 @@ from enum import Enum
 
 NAME_MAX_LENGTH = 100
 
+
 class UploadStatusEnum(models.IntegerChoices):
     PENDING = (1, "pending")
     COMPLETED = (2, "completed")
+
 
 class FileType(Enum):
     ID = "Identity Document"
     ADDRESS = "Proof of Address"
     OTHER = "Other"
 
+
 class NotificationType(Enum):
     FILE_UPLOAD = "FileUpload"
 
+
 class RelationshipManager(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH)
+
 
 class Customer(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH)
     email = models.EmailField()
     relationship_manager = models.ForeignKey(
-        RelationshipManager, on_delete=models.CASCADE)
-    
+        RelationshipManager, on_delete=models.CASCADE
+    )
+
+
 class File(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH)
-    url = models.FileField(upload_to='uploads/')
+    url = models.FileField(upload_to="uploads/")
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -36,7 +43,8 @@ class Document(models.Model):
     email_blurb = models.CharField(max_length=1000, default="")
     type = models.CharField(max_length=30)
     status = models.IntegerField(
-        choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING)    
+        choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
+    )
     file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
     presigned_url = models.UUIDField()
     created_at = models.DateTimeField(auto_now_add=True)
@@ -44,7 +52,8 @@ class Document(models.Model):
 
 class Notification(models.Model):
     relationship_manager = models.ForeignKey(
-        RelationshipManager, on_delete=models.CASCADE)
+        RelationshipManager, on_delete=models.CASCADE
+    )
     type = models.CharField(max_length=NAME_MAX_LENGTH)
     text = models.CharField(max_length=1000)
     read = models.BooleanField(default=False)

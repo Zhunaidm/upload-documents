@@ -4,6 +4,7 @@ from django.shortcuts import render
 from .models import Customer, File, Notification, FileType, Document, UploadStatusEnum
 from .forms import FileUploadForm, DocumentRequestForm
 from .data_access import is_document_invalid_status, get_document_by_url, get_customer_by_email, get_customers_by_rm,  create_notification, update_document_request_status_from_url, get_rm_by_document, get_notifications_by_rm, get_document_aggragated
+from .utilities import generate_presigned_url,is_valid_url
 import logging
 from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
@@ -11,6 +12,8 @@ RM_ID = "1"
 
 
 def check_valid_upload_request(id):
+    if not is_valid_url(id):
+        return False
     document = get_document_by_url(id)
     if document is None:
         return False  # Return False if the document_request is not found
@@ -54,7 +57,7 @@ def create_document_request(request):
             customer = get_customer_by_email(email)
             name = form.cleaned_data['name']
             type = form.cleaned_data['type']        
-            new_document_request = Document(customer=customer, name=name, type=type, presigned_url='')
+            new_document_request = Document(customer=customer, name=name, type=type, presigned_url=generate_presigned_url())
             new_document_request.save()
             return HttpResponse("Success")
     else:

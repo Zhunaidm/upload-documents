@@ -37,7 +37,7 @@ class Document(models.Model):
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING)    
     file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
-    presigned_url = models.CharField(max_length=100)
+    presigned_url = models.UUIDField()
     created_at = models.DateField(auto_now_add=True)
 
 

@@ -23,7 +23,7 @@ def get_document_requests(customer_id):
 
 
 def update_document_request_status_from_url(url, status):
-    return Document.objects.filter(presigned_url=url).first().update(status=status)
+    return Document.objects.filter(presigned_url=url).update(status=status)
 
 def get_document_by_url(url):
     return Document.objects.filter(presigned_url=url).first()
@@ -49,7 +49,7 @@ def is_document_invalid_status(document):
 
 def get_rm_by_document(url):
     document = Document.objects.get(presigned_url=url)
-    customer = document.document.customer
+    customer = document.customer
     return customer.relationship_manager
 
 

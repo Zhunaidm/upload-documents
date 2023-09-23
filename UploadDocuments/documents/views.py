@@ -3,8 +3,10 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
 from .models import Customer, File, Notification, FileType, Document, UploadStatusEnum
 from .forms import FileUploadForm, DocumentRequestForm
-from .data_access import is_document_invalid_status, get_document_by_url, get_customer_by_email, get_customers_by_rm,  create_notification, update_document_request_status_from_url, get_rm_by_document, get_notifications_by_rm, get_document_aggragated
-from .utilities import generate_presigned_url,is_valid_url
+from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
+from .data_access.document_access import get_document_by_url, update_document_status_from_url, get_documents_filtered,get_rm_by_document
+from .data_access.notification_access import  create_notification, get_notifications_by_rm
+from .utilities import generate_presigned_url, is_valid_url, is_document_invalid_status
 import logging
 from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
@@ -37,7 +39,7 @@ def upload_file(request, request_id):
                 name=form.cleaned_data['name'], url=request.FILES["url"])
             new_file.save()
             # Update the status of the Document Request
-            update_document_request_status_from_url(
+            update_document_status_from_url(
                 request_id, UploadStatusEnum.COMPLETED)
             # Create notification for RM of the customer
             create_notification(id=get_rm_by_document(request_id), type="FileUpload",
@@ -85,7 +87,7 @@ class DocumentRequestView(ListView):
     def get_queryset(self):
         email_filter = self.request.GET.get('email')
         status_filter = self.request.GET.get('status')
-        document_list = get_document_aggragated(
+        document_list = get_documents_filtered(
             RM_ID, email=email_filter, status=status_filter)
         customers = get_customers_by_rm(RM_ID)
         return {"document_list": document_list, "customers": customers}

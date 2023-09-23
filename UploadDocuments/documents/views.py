@@ -71,9 +71,8 @@ class CustomerListView(ListView):
     def get_queryset(self):
         name_filter = self.request.GET.get("name")
         email_filter = self.request.GET.get("email")
-        new_context = get_customers_by_rm(
+        return get_customers_by_rm(
             RM_ID, name=name_filter, email=email_filter)
-        return new_context
 
 
 class DocumentRequestView(ListView):
@@ -103,4 +102,8 @@ class DocumentRequestView(ListView):
 class NotificationView(ListView):
     model = Notification
     context_object_name = "notification_list"
+    template_name = "notification_list.html"
     queryset = get_notifications_by_rm(RM_ID)
+    def get_queryset(self):
+        read_filter = self.request.GET.get("read")
+        return get_notifications_by_rm(RM_ID, read=read_filter)

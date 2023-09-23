@@ -10,12 +10,8 @@ def update_notification_status(id, read):
 def mark_all_rm_notifications_read(id):
     return Notification.objects.filter(relationship_manager=id).update(read=True)
 
-def get_notifications_by_rm(id, type=None, text=None, read="All"):
+def get_notifications_by_rm(id, read="All"):
     query = Q(relationship_manager=id)
-    if type:
-        query &= Q(type=type)
-    if text:
-        query &= Q(text__icontains=text)    
     if read and read != 'All':
         query &= Q(read=read)    
     return Notification.objects.filter(query)

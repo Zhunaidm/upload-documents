@@ -6,8 +6,6 @@ NAME_MAX_LENGTH = 100
 class UploadStatusEnum(models.IntegerChoices):
     PENDING = (1, "pending")
     COMPLETED = (2, "completed")
-    EXPIRED = (3, "expired")
-    REVOKED = (4, "revoked")
 
 class FileType(Enum):
     ID = "Identity Document"

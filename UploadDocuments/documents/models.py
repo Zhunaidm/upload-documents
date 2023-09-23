@@ -25,7 +25,7 @@ class RelationshipManager(models.Model):
 
 class Customer(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH)
-    email = models.EmailField()
+    email = models.EmailField(unique=True)
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE
     )
@@ -46,7 +46,7 @@ class Document(models.Model):
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
     )
     file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
-    presigned_url = models.UUIDField()
+    presigned_url = models.UUIDField(unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

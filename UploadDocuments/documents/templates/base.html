@@ -35,9 +35,9 @@
 </head>
 <body>
     <div class="tabs-container">
-        <a class="nav-link active" href="{% url 'customer_list' %}">Customers</a>
+        <a class="nav-link" href="{% url 'customer_list' %}">Customers</a>
         <a class="nav-link" href="{% url 'document_list' %}">Documents</a>
-        <a class="nav-link" href="{% url 'notification_list' %}">Notifications</a>
+        <a class="nav-link" href="{% url 'notification_list' %}">Notifications <div id="new_notification_count"></div></a>
     </div>
 
         <div class="tab-content"  id="customers">
@@ -54,6 +54,14 @@
         <script>
             // JavaScript function to handle tab clicks (optional)
             function showTab(tabId) {
+                // Update notifications count
+                fetch("{% url 'get_unread_notification_count'  %}")
+                    .then(response => response.json())
+                    .then(data => {
+                        const newNotificationCount = document.getElementById('new_notification_count');       
+                        newNotificationCount.textContent = data.unread_count + " New";
+
+                })                
                 // Deactivate all tab links
                 const tabLinks = document.querySelectorAll('.tab-content');
                 tabLinks.forEach(tabLink => {
@@ -62,7 +70,6 @@
     
                 // Activate the selected tab link
                 document.getElementById(tabId).classList.add('active');
-
                 // Deactivate all tab links
                 const navLinks = document.querySelectorAll('.nav-link');
                 navLinks.forEach(navLink => {
@@ -74,7 +81,8 @@
 
                 // Find the corresponding nav link and activate it
                 const navLink = document.querySelector(`[href="#${tabId}"]`);
-                navLink.classList.add('active');                
+                navLink.classList.add('active');
+
             }
     
             // Show the default tab content on page load (optional)
@@ -90,6 +98,7 @@
                 } else if (currentPath.includes("{% url 'notification_list' %}")) {
                     showTab('notifications');
                 }
+
             });
         </script>
 </body>

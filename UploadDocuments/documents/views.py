@@ -1,33 +1,16 @@
 from django.views.generic.list import ListView
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
 from .models import Customer, File, Notification, FileType, Document, UploadStatusEnum
 from .forms import FileUploadForm, DocumentRequestForm
 from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
-from .data_access.document_access import get_document_by_url, update_document_status_from_url, get_documents_filtered, get_rm_by_document
-from .data_access.notification_access import create_notification, get_notifications_by_rm
-from .utilities import generate_presigned_url, is_valid_url, is_document_invalid_status
+from .data_access.document_access import update_document_status_from_url, get_documents_filtered, get_rm_by_document
+from .data_access.notification_access import create_notification, get_notifications_by_rm, update_notification_status, get_unread_notifications_by_rm_count
+from .utilities import generate_presigned_url, check_valid_upload_request
 import logging
-from datetime import datetime, timedelta
+
 logger = logging.getLogger(__name__)
 RM_ID = "1"
-
-
-def check_valid_upload_request(id):
-    if not is_valid_url(id):
-        return False
-    document = get_document_by_url(id)
-    if document is None:
-        return False  # Return False if the document_request is not found
-    #  check if expired
-    current_date = datetime.now()
-    date_to_compare_datetime = datetime.combine(
-        document.created_at, datetime.min.time())
-    date_difference = current_date - date_to_compare_datetime
-    if date_difference >= timedelta(days=7):
-        return False
-    return is_document_invalid_status(document)
-
 
 def upload_file(request, request_id):
     if (not check_valid_upload_request(request_id)):
@@ -45,7 +28,7 @@ def upload_file(request, request_id):
             # Create notification for RM of the customer
             create_notification(id=get_rm_by_document(request_id), type="FileUpload",
                                 text="A new file has been uploaded by Customer {}")
-            return HttpResponse("Success")
+            return HttpResponse("Successfully Uploaded File.")
     # Render Upload form
     else:
         form = FileUploadForm()
@@ -64,9 +47,18 @@ def create_document_request(request):
             new_document_request = Document(
                 customer=customer, name=name, type=type, presigned_url=generate_presigned_url())
             new_document_request.save()
-            return HttpResponse("Success")
+            return HttpResponseRedirect(request.META['HTTP_REFERER'])
     else:
         return HttpResponseBadRequest("Bad Request")
+    
+def mark_notification_read(request, notification_id):
+    update_notification_status(id=notification_id, read=True)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
+def get_unread_notification_count(request):
+    unread_count = get_unread_notifications_by_rm_count(id=RM_ID)
+    return JsonResponse({"unread_count" : unread_count})
+
 
 
 class CustomerListView(ListView):
@@ -85,7 +77,7 @@ class CustomerListView(ListView):
 class DocumentRequestView(ListView):
     model = Document
     context_object_name = "document_list"
-    template_name = "documentrequest_list.html"
+    template_name = "document_list.html"
 
     def get_queryset(self):
         email_filter = self.request.GET.get('email')

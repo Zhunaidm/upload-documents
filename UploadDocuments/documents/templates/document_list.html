@@ -50,7 +50,7 @@
                         <p><strong>Email:</strong> {{ document.customer.email }}</p>
                         <p><strong>Name:</strong> {{ document.name }}</p>
                         <p><strong>Type:</strong> {{ document.type }}</p>
-                        <p><strong>Status:</strong> {{ document.status }}</p>
+                        <p><strong>Status:</strong> {{ document.get_status_display }}</p>
                         <p><strong>Upload URL:</strong> {{ document.presigned_url }}</p>
                         <p><strong>Created at</strong> {{ document.created_at }}</p>
                     </div>

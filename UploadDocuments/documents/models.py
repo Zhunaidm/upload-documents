@@ -38,7 +38,7 @@ class Document(models.Model):
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING)    
     file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
     presigned_url = models.UUIDField()
-    created_at = models.DateField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Notification(models.Model):

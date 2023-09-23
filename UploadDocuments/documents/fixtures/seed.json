@@ -33,7 +33,7 @@
     },    
     {
       "model": "documents.Customer",
-      "pk": 2,
+      "pk": 3,
       "fields": {
         "name": "John Doe",
         "email": "JohnDoe@test.com",

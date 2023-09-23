@@ -9,7 +9,5 @@ python manage.py loaddata seed.json
 # Run server
 python manage.py runserver
 
-# Formating
-
-pip install autopep8
-python -m autopep8 --in-place */**/*.py
+# Visit Web app
+Navigate to 127.0.0.1:8000/ on your web browser

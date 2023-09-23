@@ -23,7 +23,7 @@
             <label for="type">Type:</label>
             <select name="type" id="type" class="form-control">
                 {% for document_type in document_types %}
-                <option value="{{ document_type.name }}">{{ document_type.value }}</option>
+                <option value="{{ document_type.value }}">{{ document_type.value }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -39,6 +39,11 @@
             <option value="1">Pending</option>
             <option value="2">Completed</option>
         </select>
+        <select name="sort">
+            <option value="" selected>Sort by</option>
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+        </select>        
         <button type="submit">Search</button>
     </form>
 
@@ -51,9 +56,7 @@
                     <p><strong>Name:</strong> {{ document.name }}</p>
                     <p><strong>Type:</strong> {{ document.type }}</p>
                     <p><strong>Status:</strong> {{ document.get_status_display }}</p>
-                    <p><strong>Upload URL:</strong> <a
-                            href="http://127.0.0.1:8000/documents/upload/{{ document.presigned_url }}">{{
-                            document.presigned_url }}</a></p>
+                    <p><strong>Upload URL:</strong> <a href="http://127.0.0.1:8000/documents/upload/{{ document.presigned_url }}">{{document.presigned_url }}</a></p>
                     <p><strong>Created at</strong> {{ document.created_at }}</p>
                     {% if document.status == 2 %}
                     <a href="{% url 'download_document' document.presigned_url %}"

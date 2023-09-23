@@ -2,7 +2,7 @@ from django.urls import path
 
 from .views import (
     CustomerListView,
-    DocumentRequestView,
+    DocumentView,
     upload_file,
     NotificationView,
     create_document_request,
@@ -18,7 +18,7 @@ from django.views.generic import RedirectView
 urlpatterns = [
     path("", RedirectView.as_view(url="/documents/customers/")),
     path("customers/", CustomerListView.as_view(), name="customer_list"),
-    path("documents/", DocumentRequestView.as_view(), name="document_list"),
+    path("documents/", DocumentView.as_view(), name="document_list"),
     path("notifications/", NotificationView.as_view(), name="notification_list"),
     path(
         "notifications/read/<str:notification_id>/",

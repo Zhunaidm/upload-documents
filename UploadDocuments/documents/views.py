@@ -124,7 +124,7 @@ class CustomerListView(ListView):
         return get_customers_by_rm(RM_ID, name=name_filter, email=email_filter)
 
 
-class DocumentRequestView(ListView):
+class DocumentView(ListView):
     model = Document
     context_object_name = "document_list"
     template_name = "document_list.html"
@@ -132,8 +132,9 @@ class DocumentRequestView(ListView):
     def get_queryset(self):
         email_filter = self.request.GET.get("email")
         status_filter = self.request.GET.get("status")
+        sort_filter = self.request.GET.get("sort")
         document_list = get_documents_filtered(
-            RM_ID, email=email_filter, status=status_filter
+            RM_ID, email=email_filter, status=status_filter, sort=sort_filter
         )
         customers = get_customers_by_rm(RM_ID)
         return {"document_list": document_list, "customers": customers}
@@ -158,4 +159,5 @@ class NotificationView(ListView):
 
     def get_queryset(self):
         read_filter = self.request.GET.get("read")
-        return get_notifications_by_rm(RM_ID, read=read_filter)
+        sort_filter = self.request.GET.get("sort")
+        return get_notifications_by_rm(RM_ID, read=read_filter, sort=sort_filter)

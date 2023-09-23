@@ -14,11 +14,15 @@ def mark_all_rm_notifications_read(id):
     return Notification.objects.filter(relationship_manager=id).update(read=True)
 
 
-def get_notifications_by_rm(id, read="All"):
+def get_notifications_by_rm(id, read="All", sort="desc"):
     query = Q(relationship_manager=id)
     if read and read != "All":
         query &= Q(read=read)
-    return Notification.objects.filter(query)
+    if sort == "desc":
+        ordering = "-created_at"
+    else:
+        ordering = "created_at"
+    return Notification.objects.filter(query).order_by(ordering)
 
 
 def get_unread_notifications_by_rm_count(id):

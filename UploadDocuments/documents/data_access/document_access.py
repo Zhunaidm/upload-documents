@@ -34,7 +34,7 @@ def get_file_from_url(url):
     return document.file
 
 
-def get_documents_filtered(id, email=None, status="All"):
+def get_documents_filtered(id, email=None, status="All", sort="desc"):
     query = Q(customer__relationship_manager_id=id)
 
     if email:
@@ -43,6 +43,13 @@ def get_documents_filtered(id, email=None, status="All"):
     if status and status != "All":
         query &= Q(status=status)
 
-    return Document.objects.select_related("customer__relationship_manager").filter(
-        query
+    if sort == "desc":
+        ordering = "-created_at"
+    else:
+        ordering = "created_at"
+
+    return (
+        Document.objects.select_related("customer__relationship_manager")
+        .filter(query)
+        .order_by(ordering)
     )

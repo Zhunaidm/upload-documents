@@ -41,7 +41,7 @@ class Document(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     name = models.CharField(max_length=NAME_MAX_LENGTH)
     email_blurb = models.CharField(max_length=1000, default="")
-    type = models.CharField(max_length=30)
+    type = models.CharField(max_length=NAME_MAX_LENGTH)
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
     )

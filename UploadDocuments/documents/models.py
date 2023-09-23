@@ -1,17 +1,16 @@
 from django.db import models
-
+from enum import Enum
 
 class UploadStatusEnum(models.IntegerChoices):
-    PENDING = (1, "pending")
-    UPLOADED = (2, "uploaded")
-
-
-class UploadUrlEnum(models.IntegerChoices):
     PENDING = (1, "pending")
     COMPLETED = (2, "completed")
     EXPIRED = (3, "expired")
     REVOKED = (4, "revoked")
 
+class FileType(Enum):
+    ID = "Identity Document"
+    ADDRESS = "Proof of Address"
+    OTHER = "Other"
 
 class RelationshipManager(models.Model):
     name = models.CharField(max_length=30)
@@ -33,17 +32,13 @@ class File(models.Model):
 class Document(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
+    blurb = models.CharField(max_length=1000, default="")
     type = models.CharField(max_length=30)
-    file = models.ForeignKey(File, on_delete=models.CASCADE)
-
-
-class DocumentRequest(models.Model):
-    document = models.ForeignKey(Document, on_delete=models.CASCADE)
-    blurb = models.CharField(max_length=1000)
     status = models.IntegerField(
-        choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING)
+        choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING)    
+    file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
     presigned_url = models.CharField(max_length=100)
-    created_at = models.DateField()
+    created_at = models.DateField(auto_now_add=True)
 
 
 class Notification(models.Model):

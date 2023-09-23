@@ -1,2 +1,34 @@
 {% extends 'base.html' %}
-<h1>Customers</h1>
+
+{% block notifications_tab_content %}
+    <div class="container">
+        <h1 class="text-center">Notifications</h1>
+        <form method="GET" action="{% url 'notification_list' %}">
+            <select name="status">
+                <option value="" selected>Select Filter</option>
+                <option value="All">All</option>
+                <option value="Unread">Unread</option>
+                <option value="Read">Read</option>
+            </select>
+            <button type="submit">Search</button>
+        </form>
+        <ul class="list-group">
+        {% for notification in notification_list %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p><strong>Email:</strong> {{ document.email }}</p>
+                        <p><strong>Name:</strong> {{ document.name }}</p>
+                        <p><strong>Type:</strong> {{ document.type }}</p>
+                        <p><strong>Status:</strong> {{ document.status }}</p>
+                        <p><strong>Upload URL:</strong> {{ presigned_url }}</p>
+                        <p><strong>Created at</strong> {{ created_at }}</p>
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-center">No Notifications.</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

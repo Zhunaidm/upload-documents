@@ -1,20 +1,26 @@
 from django.views.generic.list import ListView
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render
-from .models import Customer, DocumentRequest, File, Notification, Document
-from .forms import FileUploadForm
-from .data_access import is_document_request_invalid_status, get_customers_by_rm,  create_notification, update_document_request_status_from_url, UploadUrlEnum, get_rm_by_document_request, get_notifications_by_rm, get_document_requests_aggragated
+from .models import Customer, File, Notification, FileType, Document, UploadStatusEnum
+from .forms import FileUploadForm, DocumentRequestForm
+from .data_access import is_document_invalid_status, get_document_by_url, get_customer_by_email, get_customers_by_rm,  create_notification, update_document_request_status_from_url, get_rm_by_document, get_notifications_by_rm, get_document_aggragated
 import logging
+from datetime import datetime, timedelta
 logger = logging.getLogger(__name__)
 RM_ID = "1"
 
 
 def check_valid_upload_request(id):
-    document_request = DocumentRequest.objects.filter(presigned_url=id)
-    if not document_request.exists():
+    document = get_document_by_url(id)
+    if document is None:
         return False  # Return False if the document_request is not found
-    logger.warning(document_request)
-    return is_document_request_invalid_status(document_request)
+    #  check if expired
+    current_date = datetime.now()
+    date_to_compare_datetime = datetime.combine(document.created_at, datetime.min.time())
+    date_difference = current_date - date_to_compare_datetime
+    if date_difference >= timedelta(days=7):
+        return False
+    return is_document_invalid_status(document)
 
 
 def upload_file(request, request_id):
@@ -29,9 +35,9 @@ def upload_file(request, request_id):
             new_file.save()
             # Update the status of the Document Request
             update_document_request_status_from_url(
-                request_id, UploadUrlEnum.COMPLETED)
+                request_id, UploadStatusEnum.COMPLETED)
             # Create notification for RM of the customer
-            create_notification(id=get_rm_by_document_request(request_id), type="FileUpload",
+            create_notification(id=get_rm_by_document(request_id), type="FileUpload",
                                 text="A new file has been uploaded by Customer {}")
             return HttpResponse("Success")
     # Render Upload form
@@ -39,12 +45,26 @@ def upload_file(request, request_id):
         form = FileUploadForm()
     return render(request, "upload_file.html", {"form": form})
 
+def create_document_request(request):
+    if request.method == "POST":
+        form = DocumentRequestForm(request.POST)
+        if form.is_valid():
+            # Extract form data from the validated form
+            email = form.cleaned_data['email']
+            customer = get_customer_by_email(email)
+            name = form.cleaned_data['name']
+            type = form.cleaned_data['type']        
+            new_document_request = Document(customer=customer, name=name, type=type, presigned_url='')
+            new_document_request.save()
+            return HttpResponse("Success")
+    else:
+        return HttpResponseBadRequest("Bad Request")
+
 
 class CustomerListView(ListView):
     model = Customer
     context_object_name = "customer_list"
     template_name = "customer_list.html"
-    paginate_by = 10
 
     def get_queryset(self):
         name_filter = self.request.GET.get("name")
@@ -55,17 +75,26 @@ class CustomerListView(ListView):
 
 
 class DocumentRequestView(ListView):
-    model = DocumentRequest
+    model = Document
     context_object_name = "document_list"
     template_name = "documentrequest_list.html"
-    paginate_by = 10
 
     def get_queryset(self):
         email_filter = self.request.GET.get('email')
         status_filter = self.request.GET.get('status')
-        new_context = get_document_requests_aggragated(
+        document_list = get_document_aggragated(
             RM_ID, email=email_filter, status=status_filter)
-        return new_context
+        customers = get_customers_by_rm(RM_ID)
+        return {"document_list": document_list, "customers": customers}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context["document_list"] = queryset['document_list']
+        context["document_types"] =  [{"name": item.name, "value": item.value} for item in FileType]
+        context["customers"] = queryset['customers']
+
+        return context
 
 
 class NotificationView(ListView):

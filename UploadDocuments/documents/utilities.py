@@ -3,8 +3,7 @@ from .models import UploadStatusEnum
 from .data_access.document_access import get_document_by_url
 from datetime import timedelta
 from django.utils import timezone
-
-EXPIRY_DAYS = 7
+from .constants import EXPIRY_DAYS
 
 
 def generate_presigned_url():

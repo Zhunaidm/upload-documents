@@ -1,7 +1,6 @@
 from django.db import models
 from enum import Enum
-
-NAME_MAX_LENGTH = 100
+from .constants import CHAR_MAX_LENGTH, LARGE_MAX_LENGTH
 
 
 class UploadStatusEnum(models.IntegerChoices):
@@ -20,11 +19,11 @@ class NotificationType(Enum):
 
 
 class RelationshipManager(models.Model):
-    name = models.CharField(max_length=NAME_MAX_LENGTH)
+    name = models.CharField(max_length=CHAR_MAX_LENGTH)
 
 
 class Customer(models.Model):
-    name = models.CharField(max_length=NAME_MAX_LENGTH)
+    name = models.CharField(max_length=CHAR_MAX_LENGTH)
     email = models.EmailField(unique=True)
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE
@@ -32,16 +31,16 @@ class Customer(models.Model):
 
 
 class File(models.Model):
-    name = models.CharField(max_length=NAME_MAX_LENGTH)
+    name = models.CharField(max_length=CHAR_MAX_LENGTH)
     url = models.FileField(upload_to="uploads/")
     created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Document(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    name = models.CharField(max_length=NAME_MAX_LENGTH)
-    email_blurb = models.CharField(max_length=1000, default="")
-    type = models.CharField(max_length=NAME_MAX_LENGTH)
+    name = models.CharField(max_length=CHAR_MAX_LENGTH)
+    email_blurb = models.CharField(max_length=LARGE_MAX_LENGTH, default="")
+    type = models.CharField(max_length=CHAR_MAX_LENGTH)
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
     )
@@ -54,7 +53,7 @@ class Notification(models.Model):
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE
     )
-    type = models.CharField(max_length=NAME_MAX_LENGTH)
-    text = models.CharField(max_length=1000)
+    type = models.CharField(max_length=CHAR_MAX_LENGTH)
+    text = models.CharField(max_length=LARGE_MAX_LENGTH)
     read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -35,10 +35,10 @@ from .data_access.notification_access import (
     mark_all_rm_notifications_read,
 )
 from .utilities import generate_presigned_url, check_valid_upload_request
+from .constants import RM_ID
 import logging
 
 logger = logging.getLogger(__name__)
-RM_ID = "1"
 
 
 def upload_file(request, request_id):

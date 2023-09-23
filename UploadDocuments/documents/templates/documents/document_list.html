@@ -1,0 +1,16 @@
+<h1>Document Requests</h1>
+<ul>
+{% for document_request in document_requests %}
+    <li><b>Name:</b> {{ customer.name }} <b>Email:</b> {{ customer.email }}</li>
+    <h3>Documents:</h3>
+    <ul>
+        {% for document in customer.document_set.all %}
+            <li><b>Name:</b>: {{document.name}} <b>Type:</b>{{document.type}}</li>
+        {% empty %}
+            <li>No Documents for customer.</li>
+        {% endfor %}
+    </ul>
+{% empty %}
+    <li>No Customers assigned.</li>
+{% endfor %}
+</ul>

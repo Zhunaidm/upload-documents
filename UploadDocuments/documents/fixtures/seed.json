@@ -1,0 +1,52 @@
+[
+    {
+      "model": "documents.RelationshipManager",
+      "pk": 1,
+      "fields": {
+        "name": "RM1"
+      }
+    },
+    {
+      "model": "documents.RelationshipManager",
+      "pk": 2,
+      "fields": {
+        "name": "RM2"
+      }
+    },    
+    {
+      "model": "documents.Customer",
+      "pk": 1,
+      "fields": {
+        "name": "Jane Doe",
+        "email": "JaneDoe@test.com",
+        "relationship_manager": 1
+      }
+    },
+    {
+      "model": "documents.Customer",
+      "pk": 2,
+      "fields": {
+        "name": "John Doe",
+        "email": "JohnDoe@test.com",
+        "relationship_manager": 2
+      }
+    },
+    {
+      "model": "documents.File",
+      "pk": 1,
+      "fields": {
+        "name": "Identity Document Zhunaid",        
+        "url": "example.txt"
+      }
+    },
+    {
+      "model": "documents.Document",
+      "pk": 1,
+      "fields": {
+        "customer": 1,
+        "name": "Identity Document Zhunaid",        
+        "type": "Identification",
+        "file": 1
+      }
+    }
+  ]

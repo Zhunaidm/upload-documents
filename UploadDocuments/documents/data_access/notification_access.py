@@ -7,6 +7,9 @@ def create_notification(id, type, text):
 def update_notification_status(id, read):
     return Notification.objects.filter(pk=id).update(read=read)
 
+def mark_all_rm_notifications_read(id):
+    return Notification.objects.filter(relationship_manager=id).update(read=True)
+
 def get_notifications_by_rm(id, type=None, text=None, read="All"):
     query = Q(relationship_manager=id)
     if type:

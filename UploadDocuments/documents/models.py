@@ -14,6 +14,9 @@ class FileType(Enum):
     ADDRESS = "Proof of Address"
     OTHER = "Other"
 
+class NotificationType(Enum):
+    FILE_UPLOAD = "FileUpload"
+
 class RelationshipManager(models.Model):
     name = models.CharField(max_length=NAME_MAX_LENGTH)
 

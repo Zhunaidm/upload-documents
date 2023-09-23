@@ -1,11 +1,11 @@
 from django.views.generic.list import ListView
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import render
-from .models import Customer, File, Notification, FileType, Document, UploadStatusEnum
+from .models import Customer, File, Notification, FileType, Document, UploadStatusEnum, NotificationType
 from .forms import FileUploadForm, DocumentRequestForm
 from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
-from .data_access.document_access import update_document_status_from_url, get_documents_filtered, get_rm_by_document
-from .data_access.notification_access import create_notification, get_notifications_by_rm, update_notification_status, get_unread_notifications_by_rm_count
+from .data_access.document_access import update_document_status_from_url, get_documents_filtered, get_rm_by_document, get_customer_email_from_url
+from .data_access.notification_access import create_notification, get_notifications_by_rm, update_notification_status, get_unread_notifications_by_rm_count, mark_all_rm_notifications_read
 from .utilities import generate_presigned_url, check_valid_upload_request
 import logging
 
@@ -26,8 +26,8 @@ def upload_file(request, request_id):
             update_document_status_from_url(
                 request_id, UploadStatusEnum.COMPLETED)
             # Create notification for RM of the customer
-            create_notification(id=get_rm_by_document(request_id), type="FileUpload",
-                                text="A new file has been uploaded by Customer {}")
+            create_notification(id=get_rm_by_document(request_id), type=NotificationType.FILE_UPLOAD.value,
+                                text=f"A new file has been uploaded by Customer {get_customer_email_from_url(request_id)}")
             return HttpResponse("Successfully Uploaded File.")
     # Render Upload form
     else:
@@ -55,11 +55,13 @@ def mark_notification_read(request, notification_id):
     update_notification_status(id=notification_id, read=True)
     return HttpResponseRedirect(request.META['HTTP_REFERER'])
 
+def mark_all_notifications_read(request):
+    mark_all_rm_notifications_read(id=RM_ID)
+    return HttpResponseRedirect(request.META['HTTP_REFERER'])
+
 def get_unread_notification_count(request):
     unread_count = get_unread_notifications_by_rm_count(id=RM_ID)
     return JsonResponse({"unread_count" : unread_count})
-
-
 
 class CustomerListView(ListView):
     model = Customer

@@ -15,6 +15,10 @@ def get_document_by_url(url):
 def update_document_status_from_url(url, status):
     return Document.objects.filter(presigned_url=url).update(status=status)
 
+def get_customer_email_from_url(url):
+    document = Document.objects.get(presigned_url=url)
+    return document.customer.email
+
 def get_documents_filtered(id, email=None, status="All"):
     query = Q(customer__relationship_manager_id=id)
 

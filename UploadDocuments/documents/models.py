@@ -1,6 +1,6 @@
 from django.db import models
 from enum import Enum
-from .constants import CHAR_MAX_LENGTH, LARGE_MAX_LENGTH
+from .constants import CHAR_MAX_LENGTH, LARGE_CHAR_MAX_LENGTH
 
 
 class UploadStatusEnum(models.IntegerChoices):
@@ -39,7 +39,7 @@ class File(models.Model):
 class Document(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
-    email_blurb = models.CharField(max_length=LARGE_MAX_LENGTH, default="")
+    email_blurb = models.CharField(max_length=LARGE_CHAR_MAX_LENGTH, default="")
     type = models.CharField(max_length=CHAR_MAX_LENGTH)
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
@@ -54,6 +54,6 @@ class Notification(models.Model):
         RelationshipManager, on_delete=models.CASCADE
     )
     type = models.CharField(max_length=CHAR_MAX_LENGTH)
-    text = models.CharField(max_length=LARGE_MAX_LENGTH)
+    text = models.CharField(max_length=LARGE_CHAR_MAX_LENGTH)
     read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

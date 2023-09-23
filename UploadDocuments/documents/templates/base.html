@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documents</title>
+    <style>
+        .tabs-container {
+            display: flex;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .nav-link {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            text-decoration: none;
+            color: #333;
+        }
+        .nav-link.active {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+        }
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>    
+</head>
+<body>
+    <div class="tabs-container">
+        <a class="nav-link active" href="{% url 'customer_list' %}">Customers</a>
+        <a class="nav-link" href="{% url 'document_list' %}">Documents</a>
+        <a class="nav-link" href="{% url 'notification_list' %}">Notifications</a>
+    </div>
+
+        <div class="tab-content"  id="customers">
+                {% block customers_tab_content %}{% endblock %}
+
+        </div>
+        <div class="tab-content"  id="documents">
+                {% block documents_tab_content %}{% endblock %}
+        </div>
+        <div class="tab-content"  id="notifications">
+                {% block notifications_tab_content %}{% endblock %}
+        </div>
+
+        <script>
+            // JavaScript function to handle tab clicks (optional)
+            function showTab(tabId) {
+                // Deactivate all tab links
+                const tabLinks = document.querySelectorAll('.tab-content');
+                tabLinks.forEach(tabLink => {
+                    tabLink.classList.remove('active');
+                });
+    
+                // Activate the selected tab link
+                document.getElementById(tabId).classList.add('active');
+
+                // Deactivate all tab links
+                const navLinks = document.querySelectorAll('.nav-link');
+                navLinks.forEach(navLink => {
+                    navLink.classList.remove('active');
+                    if (navLink.getAttribute('href') === window.location.pathname) {
+                       navLink.classList.add('active');
+                    }
+                            });
+
+                // Find the corresponding nav link and activate it
+                const navLink = document.querySelector(`[href="#${tabId}"]`);
+                navLink.classList.add('active');                
+            }
+    
+            // Show the default tab content on page load (optional)
+            document.addEventListener('DOMContentLoaded', function () {
+                // Extract the current URL path
+                const currentPath = window.location.pathname;
+    
+                // Determine the initial active tab based on the URL
+                if (currentPath.includes("{% url 'customer_list' %}")) {
+                    showTab('customers');
+                } else if (currentPath.includes("{% url 'document_list' %}")) {
+                    showTab('documents');
+                } else if (currentPath.includes("{% url 'notification_list' %}")) {
+                    showTab('notifications');
+                }
+            });
+        </script>
+</body>
+</html>

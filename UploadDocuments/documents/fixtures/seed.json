@@ -35,7 +35,7 @@
       "model": "documents.File",
       "pk": 1,
       "fields": {
-        "name": "Identity Document Zhunaid",        
+        "name": "Identity Document Jane",        
         "url": "example.txt"
       }
     },
@@ -44,7 +44,7 @@
       "pk": 1,
       "fields": {
         "customer": 1,
-        "name": "Identity Document Zhunaid",        
+        "name": "Identity Document Jane",        
         "type": "Identification",
         "file": 1
       }

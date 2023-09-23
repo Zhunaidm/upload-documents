@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block documents_tab_content %}
+    <div class="container">
+        <h1 class="text-center">Customers</h1>
+        <form method="GET" action="{% url 'document_list' %}">
+            <input type="text" name="email" placeholder="Search email" value="{{email}}">
+            <select name="status">
+                <option value="" selected>Select Filter</option>
+                <option value="All">All</option>
+                <option value="Pending">Pending</option>
+                <option value="Completed">Completed</option>
+            </select>
+            <button type="submit">Search</button>
+        </form>
+        <ul class="list-group">
+        {% for document in document_list %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p><strong>Status:</strong> {{ document.email }}</p>
+                        <p><strong>Status:</strong> {{ document.name }}</p>
+                        <p><strong>Status:</strong> {{ document.type }}</p>
+                        <p><strong>Status:</strong> {{ document.status }}</p>
+                        <p><strong>Upload URL:</strong> {{ presigned_url }}</p>
+                        <p><strong>Created at</strong> {{ created_at }}</p>
+                    </div>
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item text-center">No Document Requests.</li>
+        {% endfor %}
+        </ul>
+    </div>
+{% endblock %}

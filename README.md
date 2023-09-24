@@ -53,11 +53,11 @@ Navigate to 127.0.0.1:8000/ on your web browser
 
 ## Customer upload file
 - The `Upload URL` will navigate to a one-time use link to upload a file which will link to that document request
-    - This should be handled by Apache tools in the future to handle size_limits, virus and magic button scans. But for now any attachment is allowed
+    - This should be handled by Apache tools in the future to handle size_limits, virus and magic bytes scans. But for now any attachment is allowed
 - The Link has some limitations
     - You can only upload once
     - It expires after a week
-    - Since there is no customer authentication, is this link is leaked somebody could potentially upload a file using this link. This can be a security concern but for this usecase we have no form of customer auth so this is okay/
+    - Since there is no customer authentication, if this link is leaked somebody could potentially upload a file using this link. This can be a security concern but for this usecase we have no form of customer auth so this is okay.
 
 ## Download a Customer uploaded file
 - Once the customer has uploaded their file the corresponding document requests will have a download option.

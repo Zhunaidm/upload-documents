@@ -20,29 +20,29 @@ Navigate to 127.0.0.1:8000/ on your web browser
 # Flow of application
 
 ## Viewing Customers
-- On the customers tab you can
- - View each customer assigned to you as a RM
- - Filter by name or email
- - View each customers documents
- - Create Docuement Requests for a customer
- - View the generated URL for customer upload
- - Download the file if the customer has completed the upload.
+#### On the customers tab you can
+- View each customer assigned to you as a RM
+- Filter by name or email
+- View each customers documents
+- Create Docuement Requests for a customer
+- View the generated URL for customer upload
+- Download the file if the customer has completed the upload.
 
 ## Viewing Documents
-- On the documents tab you can
- - View each document request for customers assigned to you
- - Filter by customer, status of document request and order by the created at field
- - Create Docuement Requests for a customer
- - View the generated URL for customer upload
- - Download the file if the customer has completed the upload.
+#### On the documents tab you can
+- View each document request for customers assigned to you
+- Filter by customer, status of document request and order by the created at field
+- Create Docuement Requests for a customer
+- View the generated URL for customer upload
+- Download the file if the customer has completed the upload.
 
 ## Viewing Notifications
+### On the notifications tab you can
+- Filter by read and unread notifications and order by the created at field
+- You can mark individual notifications as read or click a button to mark all.
+- Unread notifications will be highlighted in grey.
 - The title of the notifications tab will show the number of new notifications that are not marked as read
-  - For now it is just when a customer completes a Document Request
-- On the notifications tab you can
- - Filter by read and unread notifications and order by the created at field
- - You can mark individual notifications as read or click a button to mark all.
- - Unread notifications will be highlighted in gre.
+    - For now it is just when a customer completes a Document Request
 
 ## Creating a Document Request
 - A document request can be generated through the customer in the customers tab or on the Documents Tab

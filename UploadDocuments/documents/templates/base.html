@@ -1,3 +1,5 @@
+<!-- Base view which handles tab logic and navigation between various tabs -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,6 +7,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documents</title>
+    <!-- Some CSS, could probably be moved to separate file but small enough to maintain here for now -->
     <style>
         .tabs-container {
             display: flex;
@@ -45,6 +48,7 @@
                 id="new_notification_count"></span></a>
     </div>
 
+    <!-- Define all the tabs here -->
     <div class="tab-content" id="customers">
         {% block customers_tab_content %}{% endblock %}
 
@@ -56,10 +60,10 @@
         {% block notifications_tab_content %}{% endblock %}
     </div>
 
+    <!-- The Javascript Tab logc to render the relevant tab -->
     <script>
-        // JavaScript function to handle tab clicks (optional)
         function showTab(tabId) {
-            // Update notifications count
+            // Some logic get unread notifications. Not sure if can be done better but this works for now.
             fetch("{% url 'get_unread_notification_count'  %}")
                 .then(response => response.json())
                 .then(data => {
@@ -67,15 +71,17 @@
                     newNotificationCount.textContent = data.unread_count + " New";
 
                 })
-            // Deactivate all tab links
+
+            // Firslty we disbale all tabs
             const tabLinks = document.querySelectorAll('.tab-content');
             tabLinks.forEach(tabLink => {
                 tabLink.classList.remove('active');
             });
 
-            // Activate the selected tab link
+            // Then we set the current tab to active based on URL.
             document.getElementById(tabId).classList.add('active');
-            // Deactivate all tab links
+
+            // We also set the top tab nav links to active. This is to highlight the current tab
             const navLinks = document.querySelectorAll('.nav-link');
             navLinks.forEach(navLink => {
                 navLink.classList.remove('active');
@@ -84,18 +90,14 @@
                 }
             });
 
-            // Find the corresponding nav link and activate it
             const navLink = document.querySelector(`[href="#${tabId}"]`);
             navLink.classList.add('active');
 
         }
 
-        // Show the default tab content on page load (optional)
+        // Logic to render tab based on the url
         document.addEventListener('DOMContentLoaded', function () {
-            // Extract the current URL path
             const currentPath = window.location.pathname;
-
-            // Determine the initial active tab based on the URL
             if (currentPath.includes("{% url 'customer_list' %}")) {
                 showTab('customers');
             } else if (currentPath.includes("{% url 'document_list' %}")) {

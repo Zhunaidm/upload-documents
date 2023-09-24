@@ -26,6 +26,7 @@ from .data_access.document_access import (
     get_customer_email_from_url,
     get_file_from_url,
     add_file_to_document,
+    create_document,
 )
 from .data_access.notification_access import (
     create_notification,
@@ -71,19 +72,20 @@ def create_document_request(request):
     if request.method == "POST":
         form = DocumentRequestForm(request.POST)
         if form.is_valid():
-            # Extract form data from the validated form
             email = form.cleaned_data["email"]
             customer = get_customer_by_email(email)
             name = form.cleaned_data["name"]
             type = form.cleaned_data["type"]
-            new_document_request = Document(
+            create_document(
                 customer=customer,
                 name=name,
                 type=type,
                 presigned_url=generate_presigned_url(),
             )
-            new_document_request.save()
+
             return HttpResponseRedirect(request.META["HTTP_REFERER"])
+        else:
+            return HttpResponseBadRequest("Bad Request")
     else:
         return HttpResponseBadRequest("Bad Request")
 
@@ -94,6 +96,7 @@ def download_document(request, url):
         return HttpResponseNotFound("File not found")
     obj = get_object_or_404(File, id=file.pk)
     file_path = obj.url.path
+    # Download file by setting as_attachment
     response = FileResponse(open(file_path, "rb"), as_attachment=True)
     return response
 
@@ -122,6 +125,16 @@ class CustomerListView(ListView):
         name_filter = self.request.GET.get("name")
         email_filter = self.request.GET.get("email")
         return get_customers_by_rm(RM_ID, name=name_filter, email=email_filter)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context["customer_list"] = queryset
+        context["document_types"] = [
+            {"name": item.name, "value": item.value} for item in FileType
+        ]
+
+        return context
 
 
 class DocumentView(ListView):

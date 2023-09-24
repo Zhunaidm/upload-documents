@@ -20,6 +20,7 @@ class NotificationType(Enum):
 
 class RelationshipManager(models.Model):
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Customer(models.Model):
@@ -28,6 +29,7 @@ class Customer(models.Model):
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE
     )
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class File(models.Model):
@@ -39,6 +41,7 @@ class File(models.Model):
 class Document(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
+    # Unused for now. Can contain the email text sent to the Customer
     email_blurb = models.CharField(max_length=LARGE_CHAR_MAX_LENGTH, default="")
     type = models.CharField(max_length=CHAR_MAX_LENGTH)
     status = models.IntegerField(

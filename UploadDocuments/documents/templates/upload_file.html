@@ -1,3 +1,4 @@
+<!-- File Upload Form -->
 <!DOCTYPE html>
 <html>
 
@@ -9,6 +10,7 @@
     <h1>Upload a File</h1>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
+        <!-- Django tag to be able to render the defined form FileUploadForm in forms.py -->
         {{ form.as_p }}
         <button type="submit">Upload</button>
     </form>

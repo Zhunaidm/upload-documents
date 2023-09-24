@@ -1,8 +1,10 @@
+<!-- Notifications View -->
 {% extends 'base.html' %}
 
 {% block notifications_tab_content %}
-<div class="container">
-    <h1 class="text-center">Notifications</h1>
+<div>
+    <h1>Notifications</h1>
+    <!-- Get Notifications with some Filter Logic -->
     <form method="GET" action="{% url 'notification_list' %}">
         <select name="read">
             <option value="" selected>Select Filter</option>
@@ -17,31 +19,34 @@
         <button type="submit">Search</button>
     </form>
 
+    <!-- Mark all notifications as read -->
     <form method="POST" action="{% url 'mark_all_notifications_read' %}">
         {% csrf_token %}
-        <button type="submit" class="btn btn-primary">Mark All as Read</button>
+        <button type="submit" class="btn">Mark All as Read</button>
     </form>
 
+    <!-- Render the Notifications -->
     <ul class="list-group">
         {% for notification in notification_list %}
         <li class="list-group-item">
-            <div class="d-flex justify-content-between align-items-center">
+            <div>
                 <div>
                     <p><strong>Type:</strong> {{ notification.type }}</p>
                     <p><strong>Text:</strong> {{ notification.text }}</p>
                     <p><strong>Read:</strong> {{ notification.read }}</p>
                     <p><strong>Created at</strong> {{ notification.created_at }}</p>
                 </div>
+                <!-- If the notification is not read add a button to mark it as read -->
                 {% if not notification.read %}
                 <form method="POST" action="{% url 'mark_notification_read' notification.id %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-primary">Mark as Read</button>
+                    <button type="submit" class="btn">Mark as Read</button>
                 </form>
                 {% endif %}
             </div>
         </li>
         {% empty %}
-        <li class="list-group-item text-center">No Notifications.</li>
+        <li class="list-group-item">No Notifications.</li>
         {% endfor %}
     </ul>
 </div>

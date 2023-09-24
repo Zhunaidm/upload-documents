@@ -13,7 +13,7 @@ def get_documents_by_customer(customer_id):
 
 
 def get_document_by_url(url):
-    return Document.objects.filter(presigned_url=url).first()
+    return Document.objects.get(presigned_url=url)
 
 
 def update_document_status_from_url(url, status):
@@ -32,6 +32,12 @@ def get_customer_email_from_url(url):
 def get_file_from_url(url):
     document = Document.objects.get(presigned_url=url)
     return document.file
+
+
+def create_document(customer, name, type, presigned_url):
+    return Document.objects.create(
+        customer=customer, name=name, type=type, presigned_url=presigned_url
+    )
 
 
 def get_documents_filtered(id, email=None, status="All", sort="desc"):

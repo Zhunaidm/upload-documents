@@ -62,8 +62,7 @@
                     <p><strong>Status:</strong> {{ document.get_status_display }}</p>
                     <!-- Construct URL to be able to upload file -->
                     <p><strong>Upload URL:</strong> <a
-                            href="http://127.0.0.1:8000/documents/upload/{{ document.presigned_url }}">{{document.presigned_url
-                            }}</a></p>
+                            href="http://127.0.0.1:8000/documents/upload/{{ document.presigned_url }}">{{document.presigned_url}}</a></p>
                     <p><strong>Created at</strong> {{ document.created_at }}</p>
                     <!-- If document has been uploaded, show download option.-->
                     {% if document.status == 2 %}

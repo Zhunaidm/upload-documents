@@ -3,9 +3,12 @@ from ..models import Document
 
 
 def get_rm_by_document(upload_id):
-    document = Document.objects.get(upload_id=upload_id)
-    customer = document.customer
-    return customer.relationship_manager
+    try:
+        document = Document.objects.get(upload_id=upload_id)
+        customer = document.customer
+        return customer.relationship_manager
+    except Document.DoesNotExist:
+        return None
 
 
 def get_documents_by_customer(customer_id):
@@ -13,7 +16,10 @@ def get_documents_by_customer(customer_id):
 
 
 def get_document_by_upload_id(upload_id):
-    return Document.objects.get(upload_id=upload_id)
+    try:
+        return Document.objects.get(upload_id=upload_id)
+    except Document.DoesNotExist:
+        return None
 
 
 def update_document_status_from_upload_id(upload_id, status):
@@ -25,13 +31,19 @@ def add_file_to_document(upload_id, file):
 
 
 def get_customer_email_from_upload_id(upload_id):
-    document = Document.objects.get(upload_id=upload_id)
-    return document.customer.email
+    try:
+        document = Document.objects.get(upload_id=upload_id)
+        return document.customer.email
+    except Document.DoesNotExist:
+        return None
 
 
 def get_file_from_upload_id(upload_id):
-    document = Document.objects.get(upload_id=upload_id)
-    return document.file
+    try:
+        document = Document.objects.get(upload_id=upload_id)
+        return document.file
+    except Document.DoesNotExist:
+        return None
 
 
 def create_document(customer, name, type, email_blurb, upload_id):

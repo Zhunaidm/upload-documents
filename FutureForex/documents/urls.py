@@ -20,7 +20,11 @@ urlpatterns = [
     path("customers/", CustomerListView.as_view(), name="customer_list"),
     path("documents/", DocumentView.as_view(), name="document_list"),
     path("documents/create", create_document_request, name="create_document_request"),
-    path("documents/download/<str:url>", download_document, name="download_document"),
+    path(
+        "documents/download/<str:upload_id>",
+        download_document,
+        name="download_document",
+    ),
     path("notifications/", NotificationView.as_view(), name="notification_list"),
     path(
         "notifications/read/<str:notification_id>/",
@@ -37,7 +41,7 @@ urlpatterns = [
         get_unread_notification_count,
         name="get_unread_notification_count",
     ),
-    path("upload/<str:request_id>", upload_file, name="upload_file"),
+    path("upload/<str:upload_id>", upload_file, name="upload_file"),
 ]
 
 # Serve File uploads locally

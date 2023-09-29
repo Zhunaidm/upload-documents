@@ -50,7 +50,7 @@ class Document(BaseModel):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
     email_blurb = models.TextField()
-    type = models.IntegerField(choices=FileType.choices)
+    file_type = models.IntegerField(choices=FileType.choices)
     status = models.IntegerField(
         choices=UploadStatus.choices, default=UploadStatus.PENDING
     )

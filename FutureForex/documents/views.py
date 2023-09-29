@@ -5,7 +5,6 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
     FileResponse,
-    HttpResponseNotFound,
 )
 from django.shortcuts import render, get_object_or_404
 from .models import (
@@ -55,9 +54,9 @@ from django.core.mail import EmailMessage
 logger = logging.getLogger(__name__)
 
 
-def upload_file(request, request_id):
-    if not is_valid_upload_request(request_id):
-        return HttpResponse(f"Upload for request {request_id} is no longer valid")
+def upload_file(request, upload_id):
+    if not is_valid_upload_request(upload_id=upload_id):
+        return HttpResponse(f"Upload for request {upload_id} is no longer valid")
     # Submit Upload request
     if request.method == "POST":
         form = FileUploadForm(request.POST, request.FILES)
@@ -65,16 +64,18 @@ def upload_file(request, request_id):
             new_file = File(name=request.FILES["url"].name, url=request.FILES["url"])
             new_file.save()
             # Attach file to Document
-            add_file_to_document_from_upload_id(upload_id=request_id, file=new_file)
+            add_file_to_document_from_upload_id(upload_id=upload_id, file=new_file)
             # Update the status of the Document Request
-            update_document_status_from_upload_id(request_id, UploadStatus.COMPLETED)
+            update_document_status_from_upload_id(
+                upload_id=upload_id, status=UploadStatus.COMPLETED
+            )
             # Create notification for RM of the customer
             create_notification(
                 relationship_manager_id=get_rm_by_document_upload_id(
-                    upload_id=request_id
+                    upload_id=upload_id
                 ),
                 type=NotificationType.FILE_UPLOAD.value,
-                text=f"A new file has been uploaded by Customer {get_customer_email_from_upload_id(request_id)}",
+                text=f"A new file has been uploaded by Customer {get_customer_email_from_upload_id(upload_id=upload_id)}",
             )
             return HttpResponse("Successfully Uploaded File.")
     # Render Upload form
@@ -90,14 +91,15 @@ def create_document_request(request):
     form = DocumentRequestForm(request.POST)
     if form.is_valid():
         email = form.cleaned_data["email"]
-        customer = get_customer_by_email(email)
+        customer = get_customer_by_email(email=email)
         name = form.cleaned_data["name"]
-        type = form.cleaned_data["type"]
+        file_type = form.cleaned_data["file_type"]
 
+        # Generate upload id and link
         upload_id = generate_upload_id()
         upload_link = request.build_absolute_uri(f"/documents/upload/{upload_id}")
-        # Get email template
-        email_template = get_email_template_by_file_type(type)
+        # Get email template and fill in placeholders
+        email_template = get_email_template_by_file_type(file_type=file_type)
         subject = email_template.subject
         replacement_dict = {
             "upload_link": upload_link,
@@ -110,10 +112,11 @@ def create_document_request(request):
             subject=subject, body=body, from_email=FROM_EMAIL, to=[email]
         )
         email.send()
+        # Create the document object
         create_document(
             customer=customer,
             name=name,
-            type=type,
+            file_type=file_type,
             email_blurb=email.message().as_string(),
             upload_id=upload_id,
         )
@@ -123,10 +126,9 @@ def create_document_request(request):
         return HttpResponseBadRequest("Bad Request")
 
 
-def download_document(request, url):
-    file = get_file_from_upload_id(url)
-    if file is None:
-        return HttpResponseNotFound("File not found")
+def download_document(request, upload_id):
+    file = get_file_from_upload_id(upload_id=upload_id)
+    # Return 404 to the user if they try to download a file that does not exist
     obj = get_object_or_404(File, id=file.pk)
     file_path = obj.url.path
     # Download file by setting as_attachment

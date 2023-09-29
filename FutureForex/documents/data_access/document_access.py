@@ -64,11 +64,11 @@ def get_documents_filtered(
 
 
 # Create
-def create_document(customer, name, type, email_blurb, upload_id):
+def create_document(customer, name, file_type, email_blurb, upload_id):
     return Document.objects.create(
         customer=customer,
         name=name,
-        type=type,
+        file_type=file_type,
         email_blurb=email_blurb,
         upload_id=upload_id,
     )

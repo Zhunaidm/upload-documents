@@ -33,7 +33,7 @@ class Customer(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
     email = models.EmailField(unique=True)
     relationship_manager = models.ForeignKey(
-        RelationshipManager, on_delete=models.CASCADE
+        RelationshipManager, on_delete=models.SET_NULL, null=True
     )
 
 
@@ -43,7 +43,7 @@ class File(BaseModel):
 
 
 class Document(BaseModel):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
     # Unused for now. Can contain the email text sent to the Customer
     email_blurb = models.TextField()
@@ -51,7 +51,7 @@ class Document(BaseModel):
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
     )
-    file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
+    file = models.ForeignKey(File, on_delete=models.SET_NULL, blank=True, null=True)
     upload_id = models.UUIDField(unique=True)
 
 

@@ -23,6 +23,7 @@ from .forms import (
     DocumentFilterForm,
     NotificationFilterForm,
     CustomerFilterForm,
+    CreateDocumentRequestForm,
 )
 from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
 from .data_access.document_access import (
@@ -174,16 +175,19 @@ class CustomerListView(ListView):
             )
         else:
             customer_list = get_customers_by_rm(relationship_manager_id=RM_ID)
-        return {"customer_list": customer_list, "filter_form": filter_form}
+        document_form = CreateDocumentRequestForm()
+        return {
+            "customer_list": customer_list,
+            "filter_form": filter_form,
+            "document_form": document_form,
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         context["customer_list"] = queryset["customer_list"]
         context["filter_form"] = queryset["filter_form"]
-        context["document_types"] = [
-            {"name": item.label, "value": item.value} for item in FileType
-        ]
+        context["document_form"] = queryset["document_form"]
         context["UploadStatus"] = UploadStatus
 
         return context
@@ -216,21 +220,21 @@ class DocumentView(ListView):
         else:
             document_list = get_documents_filtered(relationship_manager_id=RM_ID)
         customers = get_customers_by_rm(relationship_manager_id=RM_ID)
+        document_form = CreateDocumentRequestForm()
         return {
             "document_list": document_list,
             "customers": customers,
             "filter_form": filter_form,
+            "document_form": document_form,
         }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         context["filter_form"] = queryset["filter_form"]
+        context["document_form"] = queryset["document_form"]
         context["document_list"] = queryset["document_list"]
         context["customers"] = queryset["customers"]
-        context["document_types"] = [
-            {"name": item.label, "value": item.value} for item in FileType
-        ]
         context["UploadStatus"] = UploadStatus
 
         return context

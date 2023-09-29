@@ -28,6 +28,12 @@ class DocumentRequestForm(forms.Form):
     file_type = forms.ChoiceField(choices=FileType.choices)
 
 
+class CreateDocumentRequestForm(forms.Form):
+    email = forms.EmailField()
+    name = forms.CharField()
+    file_type = forms.ChoiceField(choices=FileType.choices)
+
+
 class DocumentFilterForm(forms.Form):
     email = forms.CharField(required=False)
     status = forms.ChoiceField(

@@ -8,7 +8,7 @@
     <!-- Get Notifications with some Filter Logic -->
     <form method="GET" action="{% url 'notification_list' %}">
         <h2>Search Notifications</h2>
-        {{filter_form.as_p}}
+        {{filter_form}}
         <button type="submit">Search</button>
     </form>
 

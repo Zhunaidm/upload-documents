@@ -7,7 +7,7 @@
     <h1>Customers</h1>
     <form method="GET" action="{% url 'customer_list' %}">
         <h2>Search Customers</h2>        
-        {{filter_form.as_p}}
+        {{filter_form}}
         <button type="submit">Search</button>
     </form>
     <!-- Render customers in a list -->
@@ -28,24 +28,17 @@
             <!-- Create document request. Might not be needed since w e have this logic in documents tab -->
             <div id="documents-{{ customer.id }}" style="display: none;">
                 <form method="POST" action="{% url 'create_document_request' %}">
-                    <!-- Django tag for csrf. Not too sure how this works out of the box -->
+                    <h2>Create Document Request</h2>
                     {% csrf_token %}
-                    <h3>Create Document Request</h3>
-                    <!-- Hide because we always use customer we are viewings email-->
-                    <input type="hidden" name="email" id="email" value="{{ customer.email }}">
-                    <div class="form-group">
-                        <label for="name">Name:</label>
-                        <input type="text" name="name" id="name" class="form-control" placeholder="Request name">
-                    </div>
-                    <!-- Show enum of different document types -->
-                    <div class="form-group">
-                        <label for="type">Type:</label>
-                        <select name="type" id="type" class="form-control">
-                            {% for document_type in document_types %}
-                            <option value="{{ document_type.value }}">{{ document_type.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <input type="hidden" name="email" id="email" value="{{ customer.email }}">                    
+                    <p>
+                        <strong>{{ document_form.name.label_tag }}</strong>
+                        {{ document_form.name }}
+                    </p>        
+                    <p>
+                        <strong>{{ document_form.file_type.label_tag }}</strong>
+                        {{ document_form.file_type }} 
+                    </p>        
                     <button type="submit" class="btn">Create</button>
                 </form>
                 <!-- Show all customers docuements-->
@@ -56,7 +49,7 @@
                         <div>
                             <div>
                                 <p><strong>Name:</strong> {{ document.name }}</p>
-                                <p><strong>Type:</strong> {{ document.get_type_display }}</p>
+                                <p><strong>Type:</strong> {{ document.get_file_type_display }}</p>
                                 <p><strong>Status:</strong> {{ document.get_status_display }}</p>
                                 <!-- Construct URL to be able to upload file -->
                                 <p><strong>Upload URL:</strong> <a

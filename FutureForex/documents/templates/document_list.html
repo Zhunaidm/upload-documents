@@ -6,37 +6,31 @@
     <h1>Document Requests</h1>
 
     <form method="POST" action="{% url 'create_document_request' %}">
-        {% csrf_token %}
-        <!-- Create document request. Might not be needed since w e have this logic in documents tab -->
         <h2>Create Document Request</h2>
-        <div class="form-group">
-            <label for="email">Email:</label>
+        {% csrf_token %}
+        <p>
+            <strong>{{ document_form.email.label_tag }}</strong>
             <select name="email" id="email" class="form-control">
                 {% for customer in customers %}
                 <option value="{{ customer.email }}">{{ customer.email }}</option>
                 {% endfor %}
             </select>
-        </div>
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" name="name" id="name" class="form-control" placeholder="Request name">
-        </div>
-        <!-- Show enum of different document types -->
-        <div class="form-group">
-            <label for="type">Type:</label>
-            <select name="type" id="type" class="form-control">
-                {% for document_type in document_types %}
-                <option value="{{ document_type.value }}">{{ document_type.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
+        </p>        
+        <p>
+            <strong>{{ document_form.name.label_tag }}</strong>
+            {{ document_form.name }}
+        </p>        
+        <p>
+            <strong>{{ document_form.file_type.label_tag }}</strong>
+            {{ document_form.file_type }} 
+        </p>        
         <button type="submit" class="btn">Create</button>
     </form>
-
+    
     <!-- Get Document Requests with some Filter Logic -->
     <form method="GET">
         <h2>Search Document Requests</h2>
-        {{filter_form.as_p}}
+        {{filter_form}}
         <button type="submit">Search</button>
     </form>
     <!-- Render the documents -->
@@ -47,7 +41,7 @@
                 <div>
                     <p><strong>Email:</strong> {{ document.customer.email }}</p>
                     <p><strong>Name:</strong> {{ document.name }}</p>
-                    <p><strong>Type:</strong> {{ document.get_type_display }}</p>
+                    <p><strong>Type:</strong> {{ document.get_file_type_display }}</p>
                     <p><strong>Status:</strong> {{ document.get_status_display }}</p>
                     <!-- Construct URL to be able to upload file -->
                     <p><strong>Upload URL:</strong> <a

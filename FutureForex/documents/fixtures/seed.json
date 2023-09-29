@@ -60,7 +60,7 @@
     "fields": {
       "customer": 1,
       "name": "Identity Document Jane",
-      "type": "Identity Document",
+      "type": 1,
       "file": 1,
       "upload_id": "b2837ab9-eff4-4239-9c85-a329de4bb4b7",
       "created_at": "2023-08-31T00:00:00Z"
@@ -71,9 +71,9 @@
     "pk": 1,
     "fields": {
       "relationship_manager": 1,
-      "type": "FileUpload",
+      "type": 1,
       "text": "A new file has been uploaded by Customer C",
-      "read": false,
+      "status": 1,
       "created_at": "2023-08-31T00:00:00Z"
     }
   }

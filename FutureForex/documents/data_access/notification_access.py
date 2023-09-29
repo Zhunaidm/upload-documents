@@ -1,5 +1,5 @@
 from django.db.models import Q
-from ..models import Notification
+from ..models import Notification, NotificationStatus
 
 
 def create_notification(relationship_manager_id, type, text):
@@ -8,20 +8,24 @@ def create_notification(relationship_manager_id, type, text):
     )
 
 
-def update_notification_status(notification_id, read):
-    return Notification.objects.filter(pk=notification_id).update(read=read)
+def update_notification_status(notification_id, status):
+    return Notification.objects.filter(pk=notification_id).update(status=status)
 
 
 def mark_all_rm_notifications_read(relationship_manager_id):
     return Notification.objects.filter(
         relationship_manager=relationship_manager_id
-    ).update(read=True)
+    ).update(status=NotificationStatus.READ)
 
 
-def get_notifications_by_rm(relationship_manager_id, read="All", sort="desc"):
+def get_notifications_by_rm(
+    relationship_manager_id, status="All", type="All", sort="desc"
+):
     query = Q(relationship_manager=relationship_manager_id)
-    if read and read != "All":
-        query &= Q(read=read)
+    if status and status != "All":
+        query &= Q(status=status)
+    if type and type != "All":
+        query &= Q(type=type)
     if sort == "desc":
         ordering = "-created_at"
     else:
@@ -31,5 +35,5 @@ def get_notifications_by_rm(relationship_manager_id, read="All", sort="desc"):
 
 def get_unread_notifications_by_rm_count(relationship_manager_id):
     return Notification.objects.filter(
-        relationship_manager=relationship_manager_id, read=False
+        relationship_manager=relationship_manager_id, status=NotificationStatus.UNREAD
     ).count()

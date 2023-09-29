@@ -4,18 +4,23 @@ from .constants import CHAR_MAX_LENGTH
 
 
 class UploadStatusEnum(models.IntegerChoices):
-    PENDING = (1, "pending")
-    COMPLETED = (2, "completed")
+    PENDING = (1, "Pending")
+    COMPLETED = (2, "Completed")
 
 
-class FileType(Enum):
-    ID = "Identity Document"
-    ADDRESS = "Proof of Address"
-    OTHER = "Other"
+class FileType(models.IntegerChoices):
+    ID = (1, "Identity Document")
+    ADDRESS = (2, "Proof of Address")
+    OTHER = (3, "Other")
 
 
-class NotificationType(Enum):
-    FILE_UPLOAD = "FileUpload"
+class NotificationType(models.IntegerChoices):
+    FILE_UPLOAD = (1, "FileUpload")
+
+
+class NotificationStatus(models.IntegerChoices):
+    UNREAD = (1, "Unread")
+    READ = (2, "Read")
 
 
 class BaseModel(models.Model):
@@ -47,7 +52,7 @@ class Document(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
     # Unused for now. Can contain the email text sent to the Customer
     email_blurb = models.TextField()
-    type = models.CharField(max_length=CHAR_MAX_LENGTH)
+    type = models.IntegerField(choices=NotificationType.choices)
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
     )
@@ -59,6 +64,8 @@ class Notification(BaseModel):
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE
     )
-    type = models.CharField(max_length=CHAR_MAX_LENGTH)
+    type = models.IntegerField(choices=NotificationType.choices)
     text = models.TextField()
-    read = models.BooleanField(default=False)
+    status = models.IntegerField(
+        choices=NotificationStatus.choices, default=NotificationStatus.UNREAD
+    )

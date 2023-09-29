@@ -1,0 +1,59 @@
+<!-- Notifications View -->
+{% extends 'base.html' %}
+
+{% block notifications_tab_content %}
+
+<div>
+    <h1>Notifications</h1>
+    <!-- Get Notifications with some Filter Logic -->
+    <form method="GET" action="{% url 'notification_list' %}">
+        <h2>Search Notifications</h2>
+        {{form.as_p}}
+        <button type="submit">Search</button>
+    </form>
+
+    <!-- Mark all notifications as read -->
+    <form method="POST" action="{% url 'mark_all_notifications_read' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary">Mark All as Read</button>
+    </form>
+
+    {% csrf_token %}
+    <!-- Render the Notifications -->
+    <ul class="list-group">
+        {% for notification in notification_list %}
+        <!-- Slight hacky way to get notifications to pop. Would need to play around for best color highlight -->
+        <li class="list-group-item" {% if notification.status == 1 %} style="background-color: dimgray; color: white;"
+            {% endif %}>
+            <div>
+                <div>
+                    <p><strong>Type:</strong> {{ notification.get_type_display }}</p>
+                    <p><strong>Text:</strong> {{ notification.text }}</p>
+                    <p><strong>Read:</strong> {{ notification.get_status_display }}</p>
+                    <p><strong>Created at</strong> {{ notification.created_at }}</p>
+                </div>
+                <!-- If the notification is unread add a button to mark it as read -->
+                {% if notification.status == 1 %}
+                <form method="POST" action="{% url 'mark_notification_read' notification.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn">Mark as Read</button>
+                </form>
+                {% endif %}
+            </div>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No Notifications.</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<style>
+    /* Define styles for read notifications */
+    .bg-blue {
+        background-color: blue;
+        color: white;
+        /* Optional: Change text color for better contrast */
+    }
+</style>
+
+{% endblock %}

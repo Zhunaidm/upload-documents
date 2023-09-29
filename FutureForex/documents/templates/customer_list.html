@@ -6,8 +6,8 @@
     <!-- Get Customers with some Filter Logic -->
     <h1>Customers</h1>
     <form method="GET" action="{% url 'customer_list' %}">
-        <input type="text" name="name" placeholder="Search name" value="{{name}}">
-        <input type="text" name="email" placeholder="Search email" value="{{email}}">
+        <h2>Search Customers</h2>        
+        {{form.as_p}}
         <button type="submit">Search</button>
     </form>
     <!-- Render customers in a list -->
@@ -42,7 +42,7 @@
                         <label for="type">Type:</label>
                         <select name="type" id="type" class="form-control">
                             {% for document_type in document_types %}
-                            <option value="{{ document_type.value }}">{{ document_type.value }}</option>
+                            <option value="{{ document_type.value }}">{{ document_type.name }}</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -56,7 +56,7 @@
                         <div>
                             <div>
                                 <p><strong>Name:</strong> {{ document.name }}</p>
-                                <p><strong>Type:</strong> {{ document.type }}</p>
+                                <p><strong>Type:</strong> {{ document.get_type_display }}</p>
                                 <p><strong>Status:</strong> {{ document.get_status_display }}</p>
                                 <!-- Construct URL to be able to upload file -->
                                 <p><strong>Upload URL:</strong> <a

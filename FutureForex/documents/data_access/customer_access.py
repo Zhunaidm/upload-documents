@@ -1,8 +1,8 @@
 from django.db.models import Q
 from ..models import Customer
 
-def get_customers_by_rm(relationship_manager, name=None, email=None):
-    query = Q(relationship_manager=relationship_manager)
+def get_customers_by_rm(relationship_manager_id, name=None, email=None):
+    query = Q(relationship_manager=relationship_manager_id)
     if name:
         query &= Q(name__icontains=name)
     if email:

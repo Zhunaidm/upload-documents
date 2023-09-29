@@ -26,7 +26,7 @@
             <label for="type">Type:</label>
             <select name="type" id="type" class="form-control">
                 {% for document_type in document_types %}
-                <option value="{{ document_type.value }}">{{ document_type.value }}</option>
+                <option value="{{ document_type.value }}">{{ document_type.name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -34,20 +34,9 @@
     </form>
 
     <!-- Get Document Requests with some Filter Logic -->
-    <form method="GET" action="{% url 'document_list' %}">
+    <form method="GET">
         <h2>Search Document Requests</h2>
-        <input type="text" name="email" placeholder="Search email" value="{{email}}">
-        <select name="status">
-            <option value="" selected>Select Filter</option>
-            <option value="All">All</option>
-            <option value="1">Pending</option>
-            <option value="2">Completed</option>
-        </select>
-        <select name="sort">
-            <option value="" selected>Sort by</option>
-            <option value="asc">Ascending</option>
-            <option value="desc">Descending</option>
-        </select>
+        {{form.as_p}}
         <button type="submit">Search</button>
     </form>
     <!-- Render the documents -->
@@ -58,7 +47,7 @@
                 <div>
                     <p><strong>Email:</strong> {{ document.customer.email }}</p>
                     <p><strong>Name:</strong> {{ document.name }}</p>
-                    <p><strong>Type:</strong> {{ document.type }}</p>
+                    <p><strong>Type:</strong> {{ document.get_type_display }}</p>
                     <p><strong>Status:</strong> {{ document.get_status_display }}</p>
                     <!-- Construct URL to be able to upload file -->
                     <p><strong>Upload URL:</strong> <a

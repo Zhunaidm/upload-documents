@@ -17,8 +17,15 @@ from .models import (
     Document,
     UploadStatusEnum,
     NotificationType,
+    NotificationStatus,
 )
-from .forms import FileUploadForm, DocumentRequestForm
+from .forms import (
+    FileUploadForm,
+    DocumentRequestForm,
+    DocumentFilterForm,
+    NotificationFilterForm,
+    CustomerFilterForm,
+)
 from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
 from .data_access.document_access import (
     update_document_status_from_upload_id,
@@ -74,7 +81,7 @@ def upload_file(request, request_id):
 
 def create_document_request(request):
     if not request.method == "POST":
-        return HttpResponseBadRequest("Bad gffgd")
+        return HttpResponseBadRequest("Bad Request")
 
     form = DocumentRequestForm(request.POST)
     if form.is_valid():
@@ -121,7 +128,9 @@ def download_document(request, url):
 
 
 def mark_notification_read(request, notification_id):
-    update_notification_status(notification_id=notification_id, read=True)
+    update_notification_status(
+        notification_id=notification_id, status=NotificationStatus.READ
+    )
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
@@ -141,16 +150,30 @@ class CustomerListView(ListView):
     template_name = "customer_list.html"
 
     def get_queryset(self):
-        name_filter = self.request.GET.get("name")
-        email_filter = self.request.GET.get("email")
-        return get_customers_by_rm(RM_ID, name=name_filter, email=email_filter)
+        # Unbound the form if there is not GET request data
+        # https://medium.com/apollo-data-solutions-blog/django-initial-values-for-a-bound-form-fde7b363f79e
+        # https://stackoverflow.com/questions/43091200/initial-not-working-on-form-inputs
+        if len(self.request.GET):
+            form = CustomerFilterForm(self.request.GET)
+        else:
+            form = CustomerFilterForm()
+        if form.is_valid():
+            name_filter = form.cleaned_data["name"]
+            email_filter = form.cleaned_data["email"]
+            customer_list = get_customers_by_rm(
+                relationship_manager_id=RM_ID, name=name_filter, email=email_filter
+            )
+        else:
+            customer_list = get_customers_by_rm(relationship_manager_id=RM_ID)
+        return {"customer_list": customer_list, "form": form}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
-        context["customer_list"] = queryset
+        context["customer_list"] = queryset["customer_list"]
+        context["form"] = queryset["form"]
         context["document_types"] = [
-            {"name": item.name, "value": item.value} for item in FileType
+            {"name": item.label, "value": item.value} for item in FileType
         ]
 
         return context
@@ -162,23 +185,38 @@ class DocumentView(ListView):
     template_name = "document_list.html"
 
     def get_queryset(self):
-        email_filter = self.request.GET.get("email")
-        status_filter = self.request.GET.get("status")
-        sort_filter = self.request.GET.get("sort")
-        document_list = get_documents_filtered(
-            RM_ID, email=email_filter, status=status_filter, sort=sort_filter
-        )
-        customers = get_customers_by_rm(RM_ID)
-        return {"document_list": document_list, "customers": customers}
+        # Unbound the form if there is not GET request data
+        # https://medium.com/apollo-data-solutions-blog/django-initial-values-for-a-bound-form-fde7b363f79e
+        # https://stackoverflow.com/questions/43091200/initial-not-working-on-form-inputs
+        if len(self.request.GET):
+            form = DocumentFilterForm(self.request.GET)
+        else:
+            form = DocumentFilterForm()
+
+        if form.is_valid():
+            email_filter = form.cleaned_data["email"]
+            status_filter = form.cleaned_data["status"]
+            sort_filter = form.cleaned_data["sort"]
+            document_list = get_documents_filtered(
+                relationship_manager_id=RM_ID,
+                email=email_filter,
+                status=status_filter,
+                sort=sort_filter,
+            )
+        else:
+            document_list = get_documents_filtered(relationship_manager_id=RM_ID)
+        customers = get_customers_by_rm(relationship_manager_id=RM_ID)
+        return {"document_list": document_list, "customers": customers, "form": form}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
+        context["form"] = queryset["form"]
         context["document_list"] = queryset["document_list"]
-        context["document_types"] = [
-            {"name": item.name, "value": item.value} for item in FileType
-        ]
         context["customers"] = queryset["customers"]
+        context["document_types"] = [
+            {"name": item.label, "value": item.value} for item in FileType
+        ]
 
         return context
 
@@ -189,7 +227,33 @@ class NotificationView(ListView):
     template_name = "notification_list.html"
     queryset = get_notifications_by_rm(RM_ID)
 
+    # Unbound the form if there is not GET request data
+    # https://medium.com/apollo-data-solutions-blog/django-initial-values-for-a-bound-form-fde7b363f79e
+    # https://stackoverflow.com/questions/43091200/initial-not-working-on-form-inputs
     def get_queryset(self):
-        read_filter = self.request.GET.get("read")
-        sort_filter = self.request.GET.get("sort")
-        return get_notifications_by_rm(RM_ID, read=read_filter, sort=sort_filter)
+        if len(self.request.GET):
+            form = NotificationFilterForm(self.request.GET)
+        else:
+            form = NotificationFilterForm()
+
+        if form.is_valid():
+            status_filter = form.cleaned_data["status"]
+            type_filter = form.cleaned_data["type"]
+            sort_filter = form.cleaned_data["sort"]
+            notification_list = get_notifications_by_rm(
+                relationship_manager_id=RM_ID,
+                status=status_filter,
+                type=type_filter,
+                sort=sort_filter,
+            )
+        else:
+            notification_list = get_notifications_by_rm(relationship_manager_id=RM_ID)
+        return {"notification_list": notification_list, "form": form}
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        context["form"] = queryset["form"]
+        context["notification_list"] = queryset["notification_list"]
+
+        return context

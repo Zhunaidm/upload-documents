@@ -1,9 +1,8 @@
 from django.db import models
-from enum import Enum
 from .constants import CHAR_MAX_LENGTH
 
 
-class UploadStatusEnum(models.IntegerChoices):
+class UploadStatus(models.IntegerChoices):
     PENDING = (1, "Pending")
     COMPLETED = (2, "Completed")
 
@@ -50,11 +49,10 @@ class File(BaseModel):
 class Document(BaseModel):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
-    # Unused for now. Can contain the email text sent to the Customer
     email_blurb = models.TextField()
     type = models.IntegerField(choices=FileType.choices)
     status = models.IntegerField(
-        choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
+        choices=UploadStatus.choices, default=UploadStatus.PENDING
     )
     file = models.ForeignKey(File, on_delete=models.SET_NULL, blank=True, null=True)
     upload_id = models.UUIDField(unique=True)
@@ -70,7 +68,9 @@ class Notification(BaseModel):
         choices=NotificationStatus.choices, default=NotificationStatus.UNREAD
     )
 
+
 class EmailTemplate(BaseModel):
-    file_type = models.IntegerField(choices=FileType.choices)
+    # For now make unique but can eventually have multiple templates per type that RM can select from
+    file_type = models.IntegerField(choices=FileType.choices, unique=True)
     subject = models.TextField()
     body = models.TextField()

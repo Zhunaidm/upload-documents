@@ -1,17 +1,17 @@
 from django import forms
 from .models import (
     File,
-    UploadStatusEnum,
+    UploadStatus,
     NotificationStatus,
     NotificationType,
     FileType,
 )
 
-
+# Sorting Choices for Ascending and Descending
 SORT_CHOICES = [("asc", "Ascending"), ("desc", "Descending")]
 
 
-# Helper to add the All filter without affection the original Enum
+# Helper to add the All filter without affecting the original Enums
 def with_all_choice(choices):
     return [("", "All")] + list(choices)
 
@@ -31,7 +31,7 @@ class DocumentRequestForm(forms.Form):
 class DocumentFilterForm(forms.Form):
     email = forms.CharField(required=False)
     status = forms.ChoiceField(
-        choices=with_all_choice(UploadStatusEnum.choices), required=False, initial="All"
+        choices=with_all_choice(UploadStatus.choices), required=False, initial="All"
     )
     sort = forms.ChoiceField(choices=SORT_CHOICES, required=False, initial="desc")
 

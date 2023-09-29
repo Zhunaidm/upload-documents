@@ -7,7 +7,7 @@
     <h1>Customers</h1>
     <form method="GET" action="{% url 'customer_list' %}">
         <h2>Search Customers</h2>        
-        {{form.as_p}}
+        {{filter_form.as_p}}
         <button type="submit">Search</button>
     </form>
     <!-- Render customers in a list -->
@@ -65,7 +65,7 @@
                             </div>
                             <!-- If document has been uploaded, show download option.-->
                             <div>
-                                {% if document.status == 2 %}
+                                {% if document.status == UploadStatus.COMPLETED %}
                                 <a href="{% url 'download_document' document.upload_id %}"
                                     class="btn btn-sm btn-primary">Download</a>
                                 {% endif %}

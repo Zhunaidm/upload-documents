@@ -2,7 +2,8 @@ from django.db.models import Q
 from ..models import Document
 
 
-def get_rm_by_document(upload_id):
+# Get
+def get_rm_by_document_upload_id(upload_id):
     try:
         document = Document.objects.get(upload_id=upload_id)
         customer = document.customer
@@ -11,23 +12,11 @@ def get_rm_by_document(upload_id):
         return None
 
 
-def get_documents_by_customer(customer_id):
-    return Document.objects.filter(customer_id=customer_id)
-
-
 def get_document_by_upload_id(upload_id):
     try:
         return Document.objects.get(upload_id=upload_id)
     except Document.DoesNotExist:
         return None
-
-
-def update_document_status_from_upload_id(upload_id, status):
-    return Document.objects.filter(upload_id=upload_id).update(status=status)
-
-
-def add_file_to_document(upload_id, file):
-    return Document.objects.filter(upload_id=upload_id).update(file=file)
 
 
 def get_customer_email_from_upload_id(upload_id):
@@ -46,14 +35,9 @@ def get_file_from_upload_id(upload_id):
         return None
 
 
-def create_document(customer, name, type, email_blurb, upload_id):
-    return Document.objects.create(
-        customer=customer,
-        name=name,
-        type=type,
-        email_blurb=email_blurb,
-        upload_id=upload_id,
-    )
+# Filter
+def get_documents_by_customer(customer_id):
+    return Document.objects.filter(customer_id=customer_id)
 
 
 def get_documents_filtered(
@@ -77,3 +61,23 @@ def get_documents_filtered(
         .filter(query)
         .order_by(ordering)
     )
+
+
+# Create
+def create_document(customer, name, type, email_blurb, upload_id):
+    return Document.objects.create(
+        customer=customer,
+        name=name,
+        type=type,
+        email_blurb=email_blurb,
+        upload_id=upload_id,
+    )
+
+
+# Update
+def update_document_status_from_upload_id(upload_id, status):
+    return Document.objects.filter(upload_id=upload_id).update(status=status)
+
+
+def add_file_to_document_from_upload_id(upload_id, file):
+    return Document.objects.filter(upload_id=upload_id).update(file=file)

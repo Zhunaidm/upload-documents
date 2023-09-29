@@ -14,7 +14,7 @@ from .models import (
     Notification,
     FileType,
     Document,
-    UploadStatusEnum,
+    UploadStatus,
     NotificationType,
     NotificationStatus,
 )
@@ -29,10 +29,10 @@ from .data_access.customer_access import get_customer_by_email, get_customers_by
 from .data_access.document_access import (
     update_document_status_from_upload_id,
     get_documents_filtered,
-    get_rm_by_document,
+    get_rm_by_document_upload_id,
     get_customer_email_from_upload_id,
     get_file_from_upload_id,
-    add_file_to_document,
+    add_file_to_document_from_upload_id,
     create_document,
 )
 from .data_access.notification_access import (
@@ -40,12 +40,12 @@ from .data_access.notification_access import (
     get_notifications_by_rm,
     update_notification_status,
     get_unread_notifications_by_rm_count,
-    mark_all_rm_notifications_read,
+    mark_all_notifications_read_by_rm,
 )
 from .data_access.email_template_access import get_email_template_by_file_type
 from .utilities import (
     generate_upload_id,
-    check_valid_upload_request,
+    is_valid_upload_request,
     fill_email_template,
 )
 from .constants import RM_ID, FROM_EMAIL, EXPIRY_DAYS
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 
 def upload_file(request, request_id):
-    if not check_valid_upload_request(request_id):
+    if not is_valid_upload_request(request_id):
         return HttpResponse(f"Upload for request {request_id} is no longer valid")
     # Submit Upload request
     if request.method == "POST":
@@ -65,14 +65,14 @@ def upload_file(request, request_id):
             new_file = File(name=request.FILES["url"].name, url=request.FILES["url"])
             new_file.save()
             # Attach file to Document
-            add_file_to_document(request_id, new_file)
+            add_file_to_document_from_upload_id(upload_id=request_id, file=new_file)
             # Update the status of the Document Request
-            update_document_status_from_upload_id(
-                request_id, UploadStatusEnum.COMPLETED
-            )
+            update_document_status_from_upload_id(request_id, UploadStatus.COMPLETED)
             # Create notification for RM of the customer
             create_notification(
-                relationship_manager_id=get_rm_by_document(request_id),
+                relationship_manager_id=get_rm_by_document_upload_id(
+                    upload_id=request_id
+                ),
                 type=NotificationType.FILE_UPLOAD.value,
                 text=f"A new file has been uploaded by Customer {get_customer_email_from_upload_id(request_id)}",
             )
@@ -142,7 +142,7 @@ def mark_notification_read(request, notification_id):
 
 
 def mark_all_notifications_read(request):
-    mark_all_rm_notifications_read(relationship_manager_id=RM_ID)
+    mark_all_notifications_read_by_rm(relationship_manager_id=RM_ID)
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
@@ -161,27 +161,28 @@ class CustomerListView(ListView):
         # https://medium.com/apollo-data-solutions-blog/django-initial-values-for-a-bound-form-fde7b363f79e
         # https://stackoverflow.com/questions/43091200/initial-not-working-on-form-inputs
         if len(self.request.GET):
-            form = CustomerFilterForm(self.request.GET)
+            filter_form = CustomerFilterForm(self.request.GET)
         else:
-            form = CustomerFilterForm()
-        if form.is_valid():
-            name_filter = form.cleaned_data["name"]
-            email_filter = form.cleaned_data["email"]
+            filter_form = CustomerFilterForm()
+        if filter_form.is_valid():
+            name_filter = filter_form.cleaned_data["name"]
+            email_filter = filter_form.cleaned_data["email"]
             customer_list = get_customers_by_rm(
                 relationship_manager_id=RM_ID, name=name_filter, email=email_filter
             )
         else:
             customer_list = get_customers_by_rm(relationship_manager_id=RM_ID)
-        return {"customer_list": customer_list, "form": form}
+        return {"customer_list": customer_list, "filter_form": filter_form}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
         context["customer_list"] = queryset["customer_list"]
-        context["form"] = queryset["form"]
+        context["filter_form"] = queryset["filter_form"]
         context["document_types"] = [
             {"name": item.label, "value": item.value} for item in FileType
         ]
+        context["UploadStatus"] = UploadStatus
 
         return context
 
@@ -196,14 +197,14 @@ class DocumentView(ListView):
         # https://medium.com/apollo-data-solutions-blog/django-initial-values-for-a-bound-form-fde7b363f79e
         # https://stackoverflow.com/questions/43091200/initial-not-working-on-form-inputs
         if len(self.request.GET):
-            form = DocumentFilterForm(self.request.GET)
+            filter_form = DocumentFilterForm(self.request.GET)
         else:
-            form = DocumentFilterForm()
+            filter_form = DocumentFilterForm()
 
-        if form.is_valid():
-            email_filter = form.cleaned_data["email"]
-            status_filter = form.cleaned_data["status"]
-            sort_filter = form.cleaned_data["sort"]
+        if filter_form.is_valid():
+            email_filter = filter_form.cleaned_data["email"]
+            status_filter = filter_form.cleaned_data["status"]
+            sort_filter = filter_form.cleaned_data["sort"]
             document_list = get_documents_filtered(
                 relationship_manager_id=RM_ID,
                 email=email_filter,
@@ -213,17 +214,22 @@ class DocumentView(ListView):
         else:
             document_list = get_documents_filtered(relationship_manager_id=RM_ID)
         customers = get_customers_by_rm(relationship_manager_id=RM_ID)
-        return {"document_list": document_list, "customers": customers, "form": form}
+        return {
+            "document_list": document_list,
+            "customers": customers,
+            "filter_form": filter_form,
+        }
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
-        context["form"] = queryset["form"]
+        context["filter_form"] = queryset["filter_form"]
         context["document_list"] = queryset["document_list"]
         context["customers"] = queryset["customers"]
         context["document_types"] = [
             {"name": item.label, "value": item.value} for item in FileType
         ]
+        context["UploadStatus"] = UploadStatus
 
         return context
 
@@ -239,14 +245,14 @@ class NotificationView(ListView):
     # https://stackoverflow.com/questions/43091200/initial-not-working-on-form-inputs
     def get_queryset(self):
         if len(self.request.GET):
-            form = NotificationFilterForm(self.request.GET)
+            filter_form = NotificationFilterForm(self.request.GET)
         else:
-            form = NotificationFilterForm()
+            filter_form = NotificationFilterForm()
 
-        if form.is_valid():
-            status_filter = form.cleaned_data["status"]
-            type_filter = form.cleaned_data["type"]
-            sort_filter = form.cleaned_data["sort"]
+        if filter_form.is_valid():
+            status_filter = filter_form.cleaned_data["status"]
+            type_filter = filter_form.cleaned_data["type"]
+            sort_filter = filter_form.cleaned_data["sort"]
             notification_list = get_notifications_by_rm(
                 relationship_manager_id=RM_ID,
                 status=status_filter,
@@ -255,12 +261,13 @@ class NotificationView(ListView):
             )
         else:
             notification_list = get_notifications_by_rm(relationship_manager_id=RM_ID)
-        return {"notification_list": notification_list, "form": form}
+        return {"notification_list": notification_list, "filter_form": filter_form}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         queryset = self.get_queryset()
-        context["form"] = queryset["form"]
+        context["filter_form"] = queryset["filter_form"]
         context["notification_list"] = queryset["notification_list"]
+        context["NotificationStatus"] = NotificationStatus
 
         return context

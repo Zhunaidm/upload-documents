@@ -36,7 +36,7 @@
     <!-- Get Document Requests with some Filter Logic -->
     <form method="GET">
         <h2>Search Document Requests</h2>
-        {{form.as_p}}
+        {{filter_form.as_p}}
         <button type="submit">Search</button>
     </form>
     <!-- Render the documents -->
@@ -54,7 +54,7 @@
                             href="{{request.scheme}}://{{request.META.HTTP_HOST}}/documents/upload/{{ document.upload_id }}">{{document.upload_id}}</a></p>
                     <p><strong>Created at</strong> {{ document.created_at }}</p>
                     <!-- If document has been uploaded, show download option.-->
-                    {% if document.status == 2 %}
+                    {% if document.status == UploadStatus.COMPLETED %}
                     <a href="{% url 'download_document' document.upload_id %}"
                         class="btn btn-sm btn-primary">Download</a>
                     {% endif %}

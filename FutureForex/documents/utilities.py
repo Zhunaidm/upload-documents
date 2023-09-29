@@ -6,7 +6,7 @@ from django.utils import timezone
 from .constants import EXPIRY_DAYS
 
 
-def generate_presigned_url():
+def generate_upload_id():
     return uuid.uuid4()
 
 
@@ -25,9 +25,7 @@ def is_document_valid_status(document):
 def check_url_expired(created_at):
     current_date = timezone.now()
     date_difference = current_date - created_at
-    if date_difference >= timedelta(days=EXPIRY_DAYS):
-        return True
-
+    return date_difference >= timedelta(days=EXPIRY_DAYS)
 
 def check_valid_upload_request(id):
     # Check if provided url is valid

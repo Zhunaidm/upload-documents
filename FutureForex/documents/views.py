@@ -7,6 +7,7 @@ from django.http import (
     FileResponse,
     HttpResponseNotFound,
 )
+from django.test import override_settings
 from django.shortcuts import render, get_object_or_404
 from .models import (
     Customer,
@@ -35,9 +36,10 @@ from .data_access.notification_access import (
     get_unread_notifications_by_rm_count,
     mark_all_rm_notifications_read,
 )
-from .utilities import generate_presigned_url, check_valid_upload_request
-from .constants import RM_ID
+from .utilities import generate_upload_id, check_valid_upload_request
+from .constants import RM_ID, FROM_EMAIL
 import logging
+from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
 
@@ -68,24 +70,40 @@ def upload_file(request, request_id):
     return render(request, "upload_file.html", {"form": form})
 
 
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 def create_document_request(request):
-    if request.method == "POST":
-        form = DocumentRequestForm(request.POST)
-        if form.is_valid():
-            email = form.cleaned_data["email"]
-            customer = get_customer_by_email(email)
-            name = form.cleaned_data["name"]
-            type = form.cleaned_data["type"]
-            create_document(
-                customer=customer,
-                name=name,
-                type=type,
-                presigned_url=generate_presigned_url(),
-            )
+    if not request == "POST":
+        return HttpResponseBadRequest("Bad Request")
 
-            return HttpResponseRedirect(request.META["HTTP_REFERER"])
-        else:
-            return HttpResponseBadRequest("Bad Request")
+    form = DocumentRequestForm(request.POST)
+    if form.is_valid():
+        email = form.cleaned_data["email"]
+        customer = get_customer_by_email(email)
+        name = form.cleaned_data["name"]
+        type = form.cleaned_data["type"]
+
+        # Generate Subject
+        subject = "test_subject"
+        # Get Email blurb
+        email_blurb = "Test"
+        # Send email to customer
+        send_mail(
+            subject,
+            email_blurb,
+            FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+
+        create_document(
+            customer=customer,
+            name=name,
+            type=type,
+            email_blurb=email_blurb,
+            upload_id=generate_upload_id(),
+        )
+
+        return HttpResponseRedirect(request.META["HTTP_REFERER"])
     else:
         return HttpResponseBadRequest("Bad Request")
 

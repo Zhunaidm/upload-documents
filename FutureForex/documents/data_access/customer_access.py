@@ -12,4 +12,4 @@ def get_customers_by_rm(relationship_manager, name=None, email=None):
 
 
 def get_customer_by_email(email):
-    return Customer.objects.filter(email=email).first()
+    return Customer.objects.get(email=email)

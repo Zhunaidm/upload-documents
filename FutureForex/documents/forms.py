@@ -25,7 +25,7 @@ class FileUploadForm(forms.ModelForm):
 class DocumentRequestForm(forms.Form):
     email = forms.EmailField()
     name = forms.CharField()
-    type = forms.ChoiceField(choices=FileType.choices)
+    file_type = forms.ChoiceField(choices=FileType.choices)
 
 
 class DocumentFilterForm(forms.Form):

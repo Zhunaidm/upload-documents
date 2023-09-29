@@ -62,7 +62,7 @@
                     <p><strong>Status:</strong> {{ document.get_status_display }}</p>
                     <!-- Construct URL to be able to upload file -->
                     <p><strong>Upload URL:</strong> <a
-                            href="http://127.0.0.1:8000/documents/upload/{{ document.upload_id }}">{{document.upload_id}}</a></p>
+                            href="{{request.scheme}}://{{request.META.HTTP_HOST}}/documents/upload/{{ document.upload_id }}">{{document.upload_id}}</a></p>
                     <p><strong>Created at</strong> {{ document.created_at }}</p>
                     <!-- If document has been uploaded, show download option.-->
                     {% if document.status == 2 %}

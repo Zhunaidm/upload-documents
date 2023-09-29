@@ -21,11 +21,11 @@ from .models import (
 from .forms import FileUploadForm, DocumentRequestForm
 from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
 from .data_access.document_access import (
-    update_document_status_from_url,
+    update_document_status_from_upload_id,
     get_documents_filtered,
     get_rm_by_document,
-    get_customer_email_from_url,
-    get_file_from_url,
+    get_customer_email_from_upload_id,
+    get_file_from_upload_id,
     add_file_to_document,
     create_document,
 )
@@ -56,12 +56,14 @@ def upload_file(request, request_id):
             # Attach file to Document
             add_file_to_document(request_id, new_file)
             # Update the status of the Document Request
-            update_document_status_from_url(request_id, UploadStatusEnum.COMPLETED)
+            update_document_status_from_upload_id(
+                request_id, UploadStatusEnum.COMPLETED
+            )
             # Create notification for RM of the customer
             create_notification(
-                id=get_rm_by_document(request_id),
+                relationship_manager_id=get_rm_by_document(request_id),
                 type=NotificationType.FILE_UPLOAD.value,
-                text=f"A new file has been uploaded by Customer {get_customer_email_from_url(request_id)}",
+                text=f"A new file has been uploaded by Customer {get_customer_email_from_upload_id(request_id)}",
             )
             return HttpResponse("Successfully Uploaded File.")
     # Render Upload form
@@ -70,10 +72,9 @@ def upload_file(request, request_id):
     return render(request, "upload_file.html", {"form": form})
 
 
-@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
 def create_document_request(request):
-    if not request == "POST":
-        return HttpResponseBadRequest("Bad Request")
+    if not request.method == "POST":
+        return HttpResponseBadRequest("Bad gffgd")
 
     form = DocumentRequestForm(request.POST)
     if form.is_valid():
@@ -82,24 +83,24 @@ def create_document_request(request):
         name = form.cleaned_data["name"]
         type = form.cleaned_data["type"]
 
-        # Generate Subject
-        subject = "test_subject"
-        # Get Email blurb
-        email_blurb = "Test"
-        # Send email to customer
-        send_mail(
-            subject,
-            email_blurb,
-            FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
+        # # Generate Subject
+        # subject = "test_subject"
+        # # Get Email blurb
+        # email_blurb = "Test"
+        # # Send email to customer
+        # send_mail(
+        #     subject,
+        #     email_blurb,
+        #     FROM_EMAIL,
+        #     [email],
+        #     fail_silently=False,
+        # )
 
         create_document(
             customer=customer,
             name=name,
             type=type,
-            email_blurb=email_blurb,
+            email_blurb="email_blurb",
             upload_id=generate_upload_id(),
         )
 
@@ -109,7 +110,7 @@ def create_document_request(request):
 
 
 def download_document(request, url):
-    file = get_file_from_url(url)
+    file = get_file_from_upload_id(url)
     if file is None:
         return HttpResponseNotFound("File not found")
     obj = get_object_or_404(File, id=file.pk)
@@ -120,17 +121,17 @@ def download_document(request, url):
 
 
 def mark_notification_read(request, notification_id):
-    update_notification_status(id=notification_id, read=True)
+    update_notification_status(notification_id=notification_id, read=True)
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 def mark_all_notifications_read(request):
-    mark_all_rm_notifications_read(id=RM_ID)
+    mark_all_rm_notifications_read(relationship_manager_id=RM_ID)
     return HttpResponseRedirect(request.META["HTTP_REFERER"])
 
 
 def get_unread_notification_count(request):
-    unread_count = get_unread_notifications_by_rm_count(id=RM_ID)
+    unread_count = get_unread_notifications_by_rm_count(relationship_manager_id=RM_ID)
     return JsonResponse({"unread_count": unread_count})
 
 

@@ -1,6 +1,6 @@
 import uuid
 from .models import UploadStatusEnum
-from .data_access.document_access import get_document_by_url
+from .data_access.document_access import get_document_by_upload_id
 from datetime import timedelta
 from django.utils import timezone
 from .constants import EXPIRY_DAYS
@@ -27,12 +27,13 @@ def check_url_expired(created_at):
     date_difference = current_date - created_at
     return date_difference >= timedelta(days=EXPIRY_DAYS)
 
+
 def check_valid_upload_request(id):
     # Check if provided url is valid
     if not is_valid_url(id):
         return False
     # Check if url exists in DB
-    document = get_document_by_url(id)
+    document = get_document_by_upload_id(id)
     if document is None:
         return False
     # Check if the status is valid i.e document has not been uploaded using this url already and not expired

@@ -34,13 +34,19 @@ def get_file_from_upload_id(upload_id):
     return document.file
 
 
-def create_document(customer, name, type, upload_id):
+def create_document(customer, name, type, email_blurb, upload_id):
     return Document.objects.create(
-        customer=customer, name=name, type=type, upload_id=upload_id
+        customer=customer,
+        name=name,
+        type=type,
+        email_blurb=email_blurb,
+        upload_id=upload_id,
     )
 
 
-def get_documents_filtered(relationship_manager_id, email=None, status="All", sort="desc"):
+def get_documents_filtered(
+    relationship_manager_id, email=None, status="All", sort="desc"
+):
     query = Q(customer__relationship_manager_id=relationship_manager_id)
 
     if email:

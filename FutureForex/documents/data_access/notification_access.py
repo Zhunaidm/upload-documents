@@ -3,7 +3,9 @@ from ..models import Notification
 
 
 def create_notification(relationship_manager_id, type, text):
-    return Notification.objects.create(relationship_manager=relationship_manager_id, type=type, text=text)
+    return Notification.objects.create(
+        relationship_manager=relationship_manager_id, type=type, text=text
+    )
 
 
 def update_notification_status(notification_id, read):
@@ -11,7 +13,9 @@ def update_notification_status(notification_id, read):
 
 
 def mark_all_rm_notifications_read(relationship_manager_id):
-    return Notification.objects.filter(relationship_manager=relationship_manager_id).update(read=True)
+    return Notification.objects.filter(
+        relationship_manager=relationship_manager_id
+    ).update(read=True)
 
 
 def get_notifications_by_rm(relationship_manager_id, read="All", sort="desc"):
@@ -26,4 +30,6 @@ def get_notifications_by_rm(relationship_manager_id, read="All", sort="desc"):
 
 
 def get_unread_notifications_by_rm_count(relationship_manager_id):
-    return Notification.objects.filter(relationship_manager=relationship_manager_id, read=False).count()
+    return Notification.objects.filter(
+        relationship_manager=relationship_manager_id, read=False
+    ).count()

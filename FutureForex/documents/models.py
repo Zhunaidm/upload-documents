@@ -1,6 +1,6 @@
 from django.db import models
 from enum import Enum
-from .constants import CHAR_MAX_LENGTH, LARGE_CHAR_MAX_LENGTH
+from .constants import CHAR_MAX_LENGTH
 
 
 class UploadStatusEnum(models.IntegerChoices):
@@ -23,6 +23,7 @@ class BaseModel(models.Model):
 
     class Meta:
         abstract = True
+
 
 class RelationshipManager(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGTH)

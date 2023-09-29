@@ -52,7 +52,7 @@ class Document(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
     # Unused for now. Can contain the email text sent to the Customer
     email_blurb = models.TextField()
-    type = models.IntegerField(choices=NotificationType.choices)
+    type = models.IntegerField(choices=FileType.choices)
     status = models.IntegerField(
         choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
     )
@@ -69,3 +69,8 @@ class Notification(BaseModel):
     status = models.IntegerField(
         choices=NotificationStatus.choices, default=NotificationStatus.UNREAD
     )
+
+class EmailTemplate(BaseModel):
+    file_type = models.IntegerField(choices=FileType.choices)
+    subject = models.TextField()
+    body = models.TextField()

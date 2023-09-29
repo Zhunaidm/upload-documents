@@ -7,7 +7,6 @@ from django.http import (
     FileResponse,
     HttpResponseNotFound,
 )
-from django.test import override_settings
 from django.shortcuts import render, get_object_or_404
 from .models import (
     Customer,
@@ -43,10 +42,15 @@ from .data_access.notification_access import (
     get_unread_notifications_by_rm_count,
     mark_all_rm_notifications_read,
 )
-from .utilities import generate_upload_id, check_valid_upload_request
-from .constants import RM_ID, FROM_EMAIL
+from .data_access.email_template_access import get_email_template_by_file_type
+from .utilities import (
+    generate_upload_id,
+    check_valid_upload_request,
+    fill_email_template,
+)
+from .constants import RM_ID, FROM_EMAIL, EXPIRY_DAYS
 import logging
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage
 
 logger = logging.getLogger(__name__)
 
@@ -90,25 +94,28 @@ def create_document_request(request):
         name = form.cleaned_data["name"]
         type = form.cleaned_data["type"]
 
-        # # Generate Subject
-        # subject = "test_subject"
-        # # Get Email blurb
-        # email_blurb = "Test"
-        # # Send email to customer
-        # send_mail(
-        #     subject,
-        #     email_blurb,
-        #     FROM_EMAIL,
-        #     [email],
-        #     fail_silently=False,
-        # )
-
+        upload_id = generate_upload_id()
+        upload_link = request.build_absolute_uri(f"/documents/upload/{upload_id}")
+        # Get email template
+        email_template = get_email_template_by_file_type(type)
+        subject = email_template.subject
+        replacement_dict = {
+            "upload_link": upload_link,
+            "expire_days": EXPIRY_DAYS,
+            "rm_name": customer.relationship_manager.name,
+        }
+        body = fill_email_template(email_template, replacement_dict)
+        # Send email to customer
+        email = EmailMessage(
+            subject=subject, body=body, from_email=FROM_EMAIL, to=[email]
+        )
+        email.send()
         create_document(
             customer=customer,
             name=name,
             type=type,
-            email_blurb="email_blurb",
-            upload_id=generate_upload_id(),
+            email_blurb=email.message().as_string(),
+            upload_id=upload_id,
         )
 
         return HttpResponseRedirect(request.META["HTTP_REFERER"])

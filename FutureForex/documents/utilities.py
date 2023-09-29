@@ -40,3 +40,15 @@ def check_valid_upload_request(id):
     return is_document_valid_status(document) and not check_url_expired(
         document.created_at
     )
+
+
+def fill_email_template(email_template, replacement_dict):
+    body = email_template.body
+
+    for placeholder, replacement in replacement_dict.items():
+        body = body.replace(f"%{placeholder}%", str(replacement))
+
+    if "%" in body:
+        raise ValueError("Unreplaced '%' characters in body", body)
+
+    return body

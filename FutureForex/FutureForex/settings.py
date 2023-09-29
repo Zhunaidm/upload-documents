@@ -144,3 +144,6 @@ LOGGING = {
         },
     },
 }
+
+# Redirect Emails to console output
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

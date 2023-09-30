@@ -40,7 +40,7 @@ def get_documents_by_customer(customer_id):
     return Document.objects.filter(customer_id=customer_id)
 
 
-def get_documents_with_customers_documets(
+def get_documents_with_customers_documents(
     relationship_manager_id, email=None, status="All", sort="desc"
 ):
     query = Q(customer__relationship_manager_id=relationship_manager_id)

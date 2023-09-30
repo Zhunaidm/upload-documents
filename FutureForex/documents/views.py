@@ -175,6 +175,7 @@ class CustomerListView(ListView):
             )
         else:
             customer_list = get_customers_by_rm(relationship_manager_id=RM_ID)
+        # For document request creation
         document_form = DocumentRequestForm()
         return {
             "customer_list": customer_list,
@@ -222,6 +223,7 @@ class DocumentView(ListView):
                 relationship_manager_id=RM_ID
             )
         customers = get_customers_by_rm(relationship_manager_id=RM_ID)
+        # For document request creation        
         document_form = DocumentRequestForm()
         return {
             "document_list": document_list,

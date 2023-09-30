@@ -1,62 +1,76 @@
 from django.db import models
-from enum import Enum
-from .constants import CHAR_MAX_LENGTH, LARGE_CHAR_MAX_LENGTH
+from .constants import CHAR_MAX_LENGTH
 
 
-class UploadStatusEnum(models.IntegerChoices):
-    PENDING = (1, "pending")
-    COMPLETED = (2, "completed")
+class UploadStatus(models.IntegerChoices):
+    PENDING = (1, "Pending")
+    COMPLETED = (2, "Completed")
 
 
-class FileType(Enum):
-    ID = "Identity Document"
-    ADDRESS = "Proof of Address"
-    OTHER = "Other"
+class FileType(models.IntegerChoices):
+    ID = (1, "Identity Document")
+    ADDRESS = (2, "Proof of Address")
+    OTHER = (3, "Other")
 
 
-class NotificationType(Enum):
-    FILE_UPLOAD = "FileUpload"
+class NotificationType(models.IntegerChoices):
+    FILE_UPLOAD = (1, "FileUpload")
 
 
-class RelationshipManager(models.Model):
-    name = models.CharField(max_length=CHAR_MAX_LENGTH)
+class NotificationStatus(models.IntegerChoices):
+    UNREAD = (1, "Unread")
+    READ = (2, "Read")
+
+
+class BaseModel(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        abstract = True
 
-class Customer(models.Model):
+
+class RelationshipManager(BaseModel):
+    name = models.CharField(max_length=CHAR_MAX_LENGTH)
+
+
+class Customer(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
     email = models.EmailField(unique=True)
     relationship_manager = models.ForeignKey(
-        RelationshipManager, on_delete=models.CASCADE
+        RelationshipManager, on_delete=models.SET_NULL, null=True
     )
-    created_at = models.DateTimeField(auto_now_add=True)
 
 
-class File(models.Model):
+class File(BaseModel):
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
     url = models.FileField(upload_to="uploads/")
-    created_at = models.DateTimeField(auto_now_add=True)
 
 
-class Document(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+class Document(BaseModel):
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=CHAR_MAX_LENGTH)
-    # Unused for now. Can contain the email text sent to the Customer
-    email_blurb = models.CharField(max_length=LARGE_CHAR_MAX_LENGTH, default="")
-    type = models.CharField(max_length=CHAR_MAX_LENGTH)
+    email_blurb = models.TextField()
+    file_type = models.IntegerField(choices=FileType.choices)
     status = models.IntegerField(
-        choices=UploadStatusEnum.choices, default=UploadStatusEnum.PENDING
+        choices=UploadStatus.choices, default=UploadStatus.PENDING
     )
-    file = models.ForeignKey(File, on_delete=models.CASCADE, blank=True, null=True)
-    presigned_url = models.UUIDField(unique=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    file = models.ForeignKey(File, on_delete=models.SET_NULL, blank=True, null=True)
+    upload_id = models.TextField(unique=True)
 
 
-class Notification(models.Model):
+class Notification(BaseModel):
     relationship_manager = models.ForeignKey(
         RelationshipManager, on_delete=models.CASCADE
     )
-    type = models.CharField(max_length=CHAR_MAX_LENGTH)
-    text = models.CharField(max_length=LARGE_CHAR_MAX_LENGTH)
-    read = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
+    type = models.IntegerField(choices=NotificationType.choices)
+    text = models.TextField()
+    status = models.IntegerField(
+        choices=NotificationStatus.choices, default=NotificationStatus.UNREAD
+    )
+
+
+class EmailTemplate(BaseModel):
+    # For now make unique but can eventually have multiple templates per type that RM can select from
+    file_type = models.IntegerField(choices=FileType.choices, unique=True)
+    subject = models.TextField()
+    body = models.TextField()

@@ -3,7 +3,7 @@ Zhunaid Mohamed
 
 # Revision 1 Updates
 - [x] Use DB Migration files that can be PR'd.
-- [x] Improve naming conventions to be more consistent, i.e., use "Id" instead of "ID."
+- [x] Improve naming conventions to be more consistent, i.e Id
 - [x] Use Django forms for filtering views.
 - [x] Use Text field for model fields with very large lengths.
 - [x] Create Email template model.
@@ -12,12 +12,12 @@ Zhunaid Mohamed
 - [x] Ensure that validation checks follow fail-fast by checking base cases.
 - [x] Investigate using get_object_or_404 (Removed due to not being consistent with the rest of the view/model approach).
 - [x] Ensure that all get functions on models have a try/except for when the entry does not exist.
-- [x] Update preesigned_url to be more descriptive.
+- [x] Update presigned_url to upload_id to make more descriptive.
 - [x] Dynamically build out upload and download URLs using request information.
 - [x] Use a base model and inherit for created_at.
 - [x] Update Model on_delete for foreign keys to SET_NULL where data retention would be necessary.
 - [x] Updated all Enums to use Django Integer choices for consistency.
-- [x] Switch upload_id to text to allow easy changing and not being locked to UUID.
+- [x] Switch upload_id to text to allow easy changing of type and not being locked to UUID.
 - [x] Streamlined logic to check whether an upload_id is valid in utilities.
 - [x] Research Fat Model / Skinny view vs. Skinny Model / Fat View (The approach in this project is Skinny Models to separate the business and data access logic).
 - [x] Create a form for Document Creation requests that is reused by the Documents and Customers View.

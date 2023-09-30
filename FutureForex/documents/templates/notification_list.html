@@ -15,6 +15,7 @@
     <!-- Mark all notifications as read -->
     <form method="POST" action="{% url 'mark_all_notifications_read' %}">
         {% csrf_token %}
+        </br>        
         <button type="submit" class="btn btn-primary">Mark All as Read</button>
     </form>
 

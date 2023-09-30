@@ -30,6 +30,7 @@
                 <form method="POST" action="{% url 'create_document_request' %}">
                     <h2>Create Document Request</h2>
                     {% csrf_token %}
+                    <!-- Hide the email field since it is implicitly pulled from the current customer-->>
                     <input type="hidden" name="email" id="email" value="{{ customer.email }}">                    
                     <p>
                         <strong>{{ document_form.name.label_tag }}</strong>

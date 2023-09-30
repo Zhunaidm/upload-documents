@@ -55,7 +55,7 @@ class Document(BaseModel):
         choices=UploadStatus.choices, default=UploadStatus.PENDING
     )
     file = models.ForeignKey(File, on_delete=models.SET_NULL, blank=True, null=True)
-    upload_id = models.UUIDField(unique=True)
+    upload_id = models.TextField(unique=True)
 
 
 class Notification(BaseModel):

@@ -10,37 +10,23 @@ def generate_upload_id():
     return uuid.uuid4()
 
 
-def is_valid_upload_id(upload_id):
-    try:
-        uuid.UUID(str(upload_id))
-        return True
-    except ValueError:
-        return False
-
-
-def is_document_valid_status(document):
-    # The only valid status for now is Pending. This can eventually be extended if other checks are necessary
-    return document.status == UploadStatus.PENDING
-
-
-def is_url_expired(created_at):
+def is_upload_id_expired(created_at):
     current_date = timezone.now()
     date_difference = current_date - created_at
     return date_difference >= timedelta(days=EXPIRY_DAYS)
 
 
-def is_valid_upload_request(upload_id):
-    # Check if provided url is valid
-    if not is_valid_upload_id(upload_id=upload_id):
-        return False
-    # Check if url exists in DB
-    document = get_document_by_upload_id(upload_id=upload_id)
-    if document is None:
-        return False
-    # Check if the status is valid i.e document has not been uploaded using this url already and not expired
-    return is_document_valid_status(document=document) and not is_url_expired(
+def is_document_upload_valid(document):
+    # Check if the status is Pending and the upload_id has not expired
+    return document.status == UploadStatus.PENDING and not is_upload_id_expired(
         created_at=document.created_at
     )
+
+
+def is_valid_upload_request(upload_id):
+    # Check if upload_id exists in DB
+    document = get_document_by_upload_id(upload_id=upload_id)
+    return document and is_document_upload_valid(document=document)
 
 
 def fill_email_template(email_template, replacement_dict):

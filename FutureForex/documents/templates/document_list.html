@@ -10,7 +10,7 @@
         {% csrf_token %}
         <p>
             <strong>{{ document_form.email.label_tag }}</strong>
-            <select name="email" id="email" class="form-control">
+            <select name="email" id="email">
                 {% for customer in customers %}
                 <option value="{{ customer.email }}">{{ customer.email }}</option>
                 {% endfor %}

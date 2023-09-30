@@ -11,7 +11,7 @@ from .models import (
 SORT_CHOICES = [("asc", "Ascending"), ("desc", "Descending")]
 
 
-# Helper to add the All filter without affecting the original Enums
+# Helper to add the All filter without affecting the original choices
 def with_all_choice(choices):
     return [("", "All")] + list(choices)
 
@@ -23,12 +23,6 @@ class FileUploadForm(forms.ModelForm):
 
 
 class DocumentRequestForm(forms.Form):
-    email = forms.EmailField()
-    name = forms.CharField()
-    file_type = forms.ChoiceField(choices=FileType.choices)
-
-
-class CreateDocumentRequestForm(forms.Form):
     email = forms.EmailField()
     name = forms.CharField()
     file_type = forms.ChoiceField(choices=FileType.choices)

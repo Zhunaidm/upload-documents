@@ -5,13 +5,13 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
     FileResponse,
+    Http404,
 )
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from .models import (
     Customer,
     File,
     Notification,
-    FileType,
     Document,
     UploadStatus,
     NotificationType,
@@ -23,12 +23,11 @@ from .forms import (
     DocumentFilterForm,
     NotificationFilterForm,
     CustomerFilterForm,
-    CreateDocumentRequestForm,
 )
 from .data_access.customer_access import get_customer_by_email, get_customers_by_rm
 from .data_access.document_access import (
     update_document_status_from_upload_id,
-    get_documents_filtered,
+    get_documents_with_customers_documents,
     get_rm_by_document_upload_id,
     get_customer_email_from_upload_id,
     get_file_from_upload_id,
@@ -130,8 +129,9 @@ def create_document_request(request):
 def download_document(request, upload_id):
     file = get_file_from_upload_id(upload_id=upload_id)
     # Return 404 to the user if they try to download a file that does not exist
-    obj = get_object_or_404(File, id=file.pk)
-    file_path = obj.url.path
+    if not file:
+        raise Http404("File not found")
+    file_path = file.url.path
     # Download file by setting as_attachment
     response = FileResponse(open(file_path, "rb"), as_attachment=True)
     return response
@@ -175,7 +175,7 @@ class CustomerListView(ListView):
             )
         else:
             customer_list = get_customers_by_rm(relationship_manager_id=RM_ID)
-        document_form = CreateDocumentRequestForm()
+        document_form = DocumentRequestForm()
         return {
             "customer_list": customer_list,
             "filter_form": filter_form,
@@ -211,16 +211,18 @@ class DocumentView(ListView):
             email_filter = filter_form.cleaned_data["email"]
             status_filter = filter_form.cleaned_data["status"]
             sort_filter = filter_form.cleaned_data["sort"]
-            document_list = get_documents_filtered(
+            document_list = get_documents_with_customers_documents(
                 relationship_manager_id=RM_ID,
                 email=email_filter,
                 status=status_filter,
                 sort=sort_filter,
             )
         else:
-            document_list = get_documents_filtered(relationship_manager_id=RM_ID)
+            document_list = get_documents_with_customers_documents(
+                relationship_manager_id=RM_ID
+            )
         customers = get_customers_by_rm(relationship_manager_id=RM_ID)
-        document_form = CreateDocumentRequestForm()
+        document_form = DocumentRequestForm()
         return {
             "document_list": document_list,
             "customers": customers,
